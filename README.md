@@ -4,7 +4,7 @@ JSON Map
 Plan
 ----
 
-JSON map will be a module that will allow mapping keys in JSON to a value in a python object. This will help serializing and deserializing complex Python objects into JSON.
+JSON map will be a module that will allow mapping keys in JSON to a value in a python object and vice versa. This will help with serializing and deserializing complex Python objects.
 
 The implementation will look somewhat similar to Golang's implementation, which uses built in tags for fields to define what key the struct value maps to.
 

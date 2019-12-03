@@ -24,21 +24,27 @@ type FruitBasket struct {
 In Python this could be represented by:
 
 ```Python
-from pyser import PySer, Field
+from pyser import SerializeField, PySer
+
 class FruitBasket(PySer):
     def __init__(self):
-        self.name = pyser.Field()
-        self.fruit = pyser.Field()
-        self.iD = pyser.Field(name="ref", type=int)
-        self.private = "" # alternatively self.private = pyser.Field(private=True)
-        self.created = pyser.Field(type=Time)
-        self.intString = pyser.Field(type=int, jsonType=string)
+        self.name = SerializeField()
+        self.fruit = SerializeField(kind=list)
+        self.iD = SerializeField(name="ref", kind=int)
+        #self.created = Field(kind=Time)
+        self.intString = SerializeField(kind=string)
+
         super().__init__()
+        self.init_serialize()
+
+        self.name = "basket" # setting default value after initializing fields
+        self.private = "" # alternatively self.private = Field(private=True)
+
 ```
 
 ```Python
 basket = FruitBasket()
-basket.serialize('basket.json')
+basket.to_json('basket.json')
 ```
 
 The init function from super class will read all the fields from the object and make store them.

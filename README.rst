@@ -11,6 +11,7 @@ The implementation will look somewhat similar to Golang's implementation, which 
 Example:
 
 .. code:: Golang
+
     type FruitBasket struct {
         Name    string
         Fruit   []string
@@ -20,24 +21,23 @@ Example:
         IntString int64 `json:",string"`
     }
 
+.. code:: python
 
+   from pyser import PySer, Field
+   class FruitBasket(PySer):
+       def __init__(self):
+        self.name = pyser.Field()
+        self.fruit = pyser.Field()
+        self.iD = pyser.Field(name="ref", type=int)
+        self.private = "" # alternatively self.private = pyser.Field(private=True)
+        self.created = pyser.Field(type=Time)
+        self.intString = pyser.Field(type=int, jsonType=string)
+        super().__init__()
 
 In Python this could be represented by:
 
 .. code:: python
-    from pyser import PySer, Field
-    class FruitBasket(PySer):
-        def __init__(self):
-            self.name = pyser.Field()
-            self.fruit = pyser.Field()
-            self.iD = pyser.Field(name="ref", type=int)
-            self.private = "" # alternatively self.private = pyser.Field(private=True)
-            self.created = pyser.Field(type=Time)
-            self.intString = pyser.Field(type=int, jsonType=string)
-            super().__init__()
 
-
-.. code:: python
     basket = FruitBasket()
     basket.serialize('basket.json')
 

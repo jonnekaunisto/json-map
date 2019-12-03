@@ -6,7 +6,7 @@ from setuptools.command.test import test as TestCommand
 
 MAJOR               = 0
 MINOR               = 0
-MICRO               = 1
+MICRO               = 2
 VERSION             = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
 
@@ -61,6 +61,7 @@ setup(
     author_email="jonneka@gmail.com",
     description="Python Serializer and Deserializer",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/jonnekaunisto/simple-youtube-api",
     license='MIT License',
     keywords="serialize, deseriali",

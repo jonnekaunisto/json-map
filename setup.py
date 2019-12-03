@@ -6,7 +6,7 @@ from setuptools.command.test import test as TestCommand
 
 MAJOR               = 0
 MINOR               = 0
-MICRO               = 2
+MICRO               = 3
 VERSION             = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
 
@@ -51,9 +51,9 @@ test_reqs = [
         'coveralls>=1.1,<2.0',
     ]
 
-with open('README.md', 'r', 'utf-8') as fh:
+with open('README.rst', 'r', 'utf-8') as fh:
     long_description = fh.read()
-
+print(long_description)
 setup(
     name="pyser",
     version=VERSION,
@@ -61,10 +61,9 @@ setup(
     author_email="jonneka@gmail.com",
     description="Python Serializer and Deserializer",
     long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/jonnekaunisto/simple-youtube-api",
+    url="https://github.com/jonnekaunisto/pyser",
     license='MIT License',
-    keywords="serialize, deseriali",
+    keywords="serialize, deserialize",
     packages=find_packages(exclude='docs'),
     cmdclass=cmdclass,
     classifiers=[

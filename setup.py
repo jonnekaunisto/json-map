@@ -6,7 +6,7 @@ from setuptools.command.test import test as TestCommand
 
 MAJOR               = 0
 MINOR               = 0
-MICRO               = 3
+MICRO               = 4
 VERSION             = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
 
@@ -49,6 +49,7 @@ test_reqs = [
         'pytest-cov>=2.5.1',
         'pytest>=3.0.0',
         'coveralls>=1.1,<2.0',
+        'rstvalidator',
     ]
 
 with open('README.rst', 'r', 'utf-8') as fh:

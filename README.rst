@@ -10,7 +10,7 @@ The implementation will look somewhat similar to Golang's implementation, which 
 
 Example:
 
-.. code:: Golang
+.. code:: Go
 
     type FruitBasket struct {
         Name    string
@@ -36,7 +36,7 @@ Example:
 
 In Python this could be represented by:
 
-.. code:: python
+.. code:: Python
 
     basket = FruitBasket()
     basket.serialize('basket.json')

@@ -36,7 +36,7 @@ class FruitBasketNotCallable(PySer):
     def __init__(self):
         super().__init__()
         self.name = DeserializeField(kind="not a valid kind")
-        self.init_serialize()
+        self.init_deserialize()
 
 
 def test_deserialize_raw_json():

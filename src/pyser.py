@@ -41,13 +41,10 @@ class PySer():
         for field_name, field in self.__field_dict.items():
             kind = field.serialize.kind
             json_value = None
-            
+     
             json_value = kind(self.__dict__[field_name])
 
-            if field.serialize.name is not None:
-                json_dict[field.serialize.name] = json_value
-            else:
-                json_dict[field_name] = json_value
+            json_dict[field.serialize.name] = json_value
 
         if filename is None:
             return json.dumps(json_dict)

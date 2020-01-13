@@ -37,9 +37,7 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args.split(" "))
         sys.exit(errno)
 
-
 cmdclass = {'test': PyTest}  # Define custom commands.
-
 
 # Define the requirements for specific execution needs.
 requires = [
@@ -50,7 +48,7 @@ test_reqs = [
         'pytest>=3.0.0',
         'coveralls>=1.1,<2.0',
         'rstvalidator',
-    ]
+]
 
 with open('README.rst', 'r', 'utf-8') as fh:
     long_description = fh.read()

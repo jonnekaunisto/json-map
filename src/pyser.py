@@ -26,7 +26,7 @@ class PySer():
         '''initializes all the variables that have to do with deserializing
         '''
         for field_name, field in self.__dict__.items():
-            if type(field) is DeSerializeField:
+            if type(field) is DeserializeField:
                 if field.name is None:
                     field.name = field_name
 
@@ -41,10 +41,8 @@ class PySer():
         for field_name, field in self.__field_dict.items():
             kind = field.serialize.kind
             json_value = None
-            if kind is None:
-                json_value = self.__dict__[field_name]
-            else:
-                json_value = kind(self.__dict__[field_name])
+            
+            json_value = kind(self.__dict__[field_name])
 
             if field.serialize.name is not None:
                 json_dict[field.serialize.name] = json_value
@@ -69,7 +67,7 @@ class PySer():
         for field_name, field in self.__field_dict.items():
             deserialize = field.deserialize
             if deserialize.name not in data_dict:
-                raise Exception('{} not found in the json'.format(
+                raise Exception('{} field not found in the json'.format(
                     deserialize.name))
 
             self.__dict__[deserialize.name] = field.deserialize.kind(
@@ -82,7 +80,7 @@ class Field():
         self.deserialize = deserialize
 
 
-class DeSerializeField():
+class DeserializeField():
     '''Field
     name:
         name of the field that should be deserialized from, default is the
@@ -94,6 +92,9 @@ class DeSerializeField():
     def __init__(self, name=None, kind=lambda x: x):
         self.name = name
         self.kind = kind
+
+        if not callable(kind):
+            raise Exception("Kind needs to be callable")
 
     def __str__(self):
         return "(name: {0}, kind: {1})".format(
@@ -114,6 +115,9 @@ class SerializeField():
     def __init__(self, name=None, kind=lambda x: x):
         self.name = name
         self.kind = kind
+
+        if not callable(kind):
+            raise Exception("Kind needs to be callable")
 
     def __str__(self):
         return "(name: {0}, kind: {1})".format(

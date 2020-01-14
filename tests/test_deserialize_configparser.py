@@ -12,7 +12,12 @@ fruit_basket_test_file = test_data_path + 'fruitBasket.ini'
 
 class BasketDetails(ConfigSectionBase):
     def __init__(self):
-        pass
+        super().__init__('BasketDetails')
+
+        self.name = DeserializeConfigOption()
+        self.id = DeserializeConfigOption(name='ref')
+        self.intString = DeserializeConfigOption(kind=int)
+        self.init_deserialize_config()
 
 
 class FruitBasket(ConfigBase):
@@ -44,7 +49,17 @@ class FruitBasket(ConfigBase):
 def test_deserialize_config():
     basket = FruitBasket()
     basket.from_config(fruit_basket_test_file)
+
     assert basket.name == 'basket'
     assert basket.fruit == 'banana'
     assert basket.id == '1'
     assert basket.intString == 12345
+
+
+def test_config_section_base():
+    details = BasketDetails()
+    details.from_config(fruit_basket_test_file)
+
+    assert details.name == 'basket'
+    assert details.id == '1'
+    assert details.intString == 12345

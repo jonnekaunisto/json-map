@@ -28,8 +28,7 @@ class ConfigSectionBase():
 
         for field_name, field in self.__config_key_dict.items():
             deserialize = field.deserialize
-
-            if config.has_option(deserialize.section, deserialize.name):
+            if config.has_option(self.section, deserialize.name):
                 self.__dict__[field_name] = field.deserialize.kind(
                     config.get(self.section, deserialize.name))
             elif not deserialize.optional:
@@ -70,9 +69,10 @@ class ConfigBase():
 
 
 class CompositeConfigOption():
-    def __init__(self, serialize=None, deserialize=None):
+    def __init__(self, serialize=None, deserialize=None, is_section=False):
         self.serialize = serialize
         self.deserialize = deserialize
+        self.is_section = is_section
 
 
 class SerializeConfigOption():

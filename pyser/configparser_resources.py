@@ -30,10 +30,10 @@ class ConfigSectionBase():
             deserialize = field.deserialize
 
             if config.has_option(deserialize.section, deserialize.name):
-                self.__dict__[deserialize.name] = field.deserialize.kind(
+                self.__dict__[field_name] = field.deserialize.kind(
                     config.get(self.section, deserialize.name))
             elif not deserialize.optional:
-                raise Exception('{} field not found in the json'.format(
+                raise Exception('{} field not found in the config'.format(
                     deserialize.name))
 
 
@@ -62,7 +62,7 @@ class ConfigBase():
             deserialize = field.deserialize
 
             if config.has_option(deserialize.section, deserialize.name):
-                self.__dict__[deserialize.name] = field.deserialize.kind(
+                self.__dict__[field_name] = field.deserialize.kind(
                     config.get(deserialize.section, deserialize.name))
             elif not deserialize.optional:
                 raise Exception('{} field not found in the json'.format(

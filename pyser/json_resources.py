@@ -2,11 +2,11 @@ from collections import defaultdict
 import json
 
 
-class PySer():
+class JSONBase():
     def __init__(self):
         self.__field_dict = {}
 
-    def init_serialize(self):
+    def init_serialize_json(self):
         '''initializes all the variables that have to do with serializing
         '''
         for field_name, field in self.__dict__.items():
@@ -18,11 +18,12 @@ class PySer():
                 if field_name in self.__field_dict:
                     self.__field_dict[field_name].serialize = field
                 else:
-                    self.__field_dict[field_name] = Field(serialize=field)
+                    self.__field_dict[field_name] = CompositeField(
+                        serialize=field)
 
                 self.__dict__[field_name] = None
 
-    def init_deserialize(self):
+    def init_deserialize_json(self):
         '''initializes all the variables that have to do with deserializing
         '''
         for field_name, field in self.__dict__.items():
@@ -33,17 +34,18 @@ class PySer():
                 if field_name in self.__field_dict:
                     self.__field_dict[field_name].deserialize = field
                 else:
-                    self.__field_dict[field_name] = Field(deserialize=field)
+                    self.__field_dict[field_name] = CompositeField(
+                        deserialize=field)
                 self.__dict__[field_name] = None
 
     def to_json(self, filename=None):
         json_dict = {}
         for field_name, field in self.__field_dict.items():
-            kind = field.serialize.kind
-            json_value = None
-     
-            json_value = kind(self.__dict__[field_name])
+            if self.__dict__[field_name] is None and field.serialize.optional:
+                continue
 
+            kind = field.serialize.kind
+            json_value = kind(self.__dict__[field_name])
             json_dict[field.serialize.name] = json_value
 
         if filename is None:
@@ -63,44 +65,51 @@ class PySer():
 
         for field_name, field in self.__field_dict.items():
             deserialize = field.deserialize
-            if deserialize.name not in data_dict:
+
+            if deserialize.name in data_dict:
+                self.__dict__[deserialize.name] = field.deserialize.kind(
+                    data_dict[deserialize.name])
+            elif not deserialize.optional:
                 raise Exception('{} field not found in the json'.format(
                     deserialize.name))
 
-            self.__dict__[deserialize.name] = field.deserialize.kind(
-                data_dict[deserialize.name])
 
-
-class Field():
+class CompositeField():
     def __init__(self, serialize=None, deserialize=None):
         self.serialize = serialize
         self.deserialize = deserialize
 
 
-class DeserializeField():
-    '''Field
+class Field():
+    def __str__(self):
+        return "(name: {0}, kind: {1})".format(
+            self.name, self.kind)
+
+    __repr__ = __str__
+
+
+class DeserializeField(Field):
+    '''DeserializeField
     name:
         name of the field that should be deserialized from, default is the
         name of the variable
     kind:
         the type of the variable should be deserialized to, default is what
-        the deserialized      variable is
+        the deserialized variable is
+    optional:
+        specifies if the value is optional, if value is not found as a field
+        the variable is left as None
     '''
-    def __init__(self, name=None, kind=lambda x: x):
+    def __init__(self, name=None, kind=lambda x: x, optional=False):
         self.name = name
         self.kind = kind
+        self.optional = optional
 
         if not callable(kind):
             raise Exception("Kind needs to be callable")
 
-    def __str__(self):
-        return "(name: {0}, kind: {1})".format(
-             self.name, self.kind)
 
-    __repr__ = __str__
-
-
-class SerializeField():
+class SerializeField(Field):
     '''SerializeField
     name:
         name of the field that should serialize to, defaults to the variable
@@ -108,16 +117,14 @@ class SerializeField():
     kind:
         the type that the field should be serialized to, defaults to the type
         that the variable is
+    optional:
+        specifies if the value is optional, if value is None then it will not
+        get serialized
     '''
-    def __init__(self, name=None, kind=lambda x: x):
+    def __init__(self, name=None, kind=lambda x: x, optional=False):
         self.name = name
         self.kind = kind
+        self.optional = optional
 
         if not callable(kind):
             raise Exception("Kind needs to be callable")
-
-    def __str__(self):
-        return "(name: {0}, kind: {1})".format(
-            self.name, self.kind)
-
-    __repr__ = __str__

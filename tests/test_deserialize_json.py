@@ -2,17 +2,16 @@ import pytest
 import os
 import sys
 
-currPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(currPath + '/../src')
-from pyser import SerializeField, DeserializeField, PySer
+from pyser import JSONBase, SerializeField, DeserializeField
 
+currPath = os.path.dirname(os.path.abspath(__file__))
 raw_json = '{\"name\": \"basket\", \"fruit\": \"banana\", \"ref\": 123, \"intString\": 12345}'
 test_data_path = currPath + os.sep + 'test_data' + os.sep
 fruit_basket_test_file = test_data_path + 'fruitBasket.json'
 fruit_basket_missing_field_file = test_data_path + 'fruitBasketMissingField.json'
 
 
-class FruitBasket(PySer):
+class FruitBasket(JSONBase):
     def __init__(self):
         super().__init__()
         self.name = DeserializeField()
@@ -21,7 +20,8 @@ class FruitBasket(PySer):
         self.private = ''
         # self.created = DeserializeField(kind=Time)
         self.intString = DeserializeField(kind=int)
-        self.init_deserialize()
+        self.optionalString = DeserializeField(kind=str, optional=True)
+        self.init_deserialize_json()
 
         self.name = SerializeField()
         self.fruit = SerializeField()
@@ -29,14 +29,14 @@ class FruitBasket(PySer):
         self.private = ''  # alternatively self.private = Field(private=True)
         # self.created = Field(kind=Time)
         self.intString = SerializeField(kind=int)
-        self.init_serialize()
+        self.init_serialize_json()
 
 
-class FruitBasketNotCallable(PySer):
+class FruitBasketNotCallable(JSONBase):
     def __init__(self):
         super().__init__()
         self.name = DeserializeField(kind="not a valid kind")
-        self.init_deserialize()
+        self.init_deserialize_json()
 
 
 def test_deserialize_raw_json():

@@ -2,14 +2,12 @@ import pytest
 import os
 import sys
 
-currPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(currPath + '/../src')
-from pyser import SerializeField, DeserializeField, PySer
+from pyser import JSONBase, SerializeField, DeserializeField
 
 basket_json = "{\"name\": \"basket\", \"fruit\": \"banana\", \"ref\": 123, \"intString\": 12345}"
 
 
-class FruitBasket(PySer):
+class FruitBasket(JSONBase):
     def __init__(self):
         super().__init__()
         self.name = SerializeField()
@@ -18,7 +16,8 @@ class FruitBasket(PySer):
         self.private = ""  # alternatively self.private = Field(private=True)
         # self.created = Field(kind=Time)
         self.intString = SerializeField(kind=int)
-        self.init_serialize()
+        self.optionalString = SerializeField(optional=True)
+        self.init_serialize_json()
 
         self.name = DeserializeField()
         self.fruit = DeserializeField()
@@ -26,16 +25,17 @@ class FruitBasket(PySer):
         self.private = ""
         # self.created = DeserializeField(kind=Time)
         self.intString = DeserializeField(kind=int)
-        self.init_deserialize()
+        self.init_deserialize_json()
 
         self.name = "basket"
+        self.optionalString = None
 
 
-class FruitBasketNotCallable(PySer):
+class FruitBasketNotCallable(JSONBase):
     def __init__(self):
         super().__init__()
         self.name = SerializeField(kind="not a valid kind")
-        self.init_serialize()
+        self.init_serialize_json()
 
 
 def test_serialize():

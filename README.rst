@@ -24,7 +24,7 @@ Example:
             self.private = ""
             # self.created = DeserializeField(kind=Time)
             self.intString = DeserializeField(kind=int)
-            self.init_deserialize()
+            self.init_deserialize_json()
 
 
 In Python this could be represented by:

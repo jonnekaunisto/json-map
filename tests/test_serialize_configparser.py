@@ -3,7 +3,8 @@ import os
 import configparser
 
 from pyser import (ConfigSectionBase, ConfigBase, CompositeConfigOption,
-                   SerializeConfigOption, DeserializeConfigOption)
+                   SerializeConfigOption, DeserializeConfigOption,
+                   SerializeConfigSection, DeserializeConfigSection)
 
 currPath = os.path.dirname(os.path.abspath(__file__))
 test_data_path = currPath + os.sep + 'test_data' + os.sep
@@ -32,7 +33,8 @@ class FruitBasket(ConfigBase):
         self.iD = DeserializeConfigOption(name='ref', section='BasketDetails')
         self.intString = DeserializeConfigOption(section='BasketDetails',
                                                  kind=int)
-        self.someExtraField = DeserializeConfigOption()
+
+        self.details = DeserializeConfigSection()
         self.init_deserialize_config()
 
         self.name = SerializeConfigOption(section='BasketDetails')
@@ -93,7 +95,6 @@ def test_serialize_config_section():
     details.name = 'basket'
 
     details.to_config()
-
 
 
 def test_serialize_config_str():

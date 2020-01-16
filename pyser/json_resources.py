@@ -4,7 +4,7 @@ import json
 
 class JSONBase():
     def __init__(self):
-        self.__field_dict = {}
+        self._field_dict = {}
 
     def init_serialize_json(self):
         '''initializes all the variables that have to do with serializing
@@ -15,10 +15,10 @@ class JSONBase():
                 if field.name is None:
                     field.name = field_name
 
-                if field_name in self.__field_dict:
-                    self.__field_dict[field_name].serialize = field
+                if field_name in self._field_dict:
+                    self._field_dict[field_name].serialize = field
                 else:
-                    self.__field_dict[field_name] = CompositeField(
+                    self._field_dict[field_name] = CompositeField(
                         serialize=field)
 
                 self.__dict__[field_name] = None
@@ -31,16 +31,16 @@ class JSONBase():
                 if field.name is None:
                     field.name = field_name
 
-                if field_name in self.__field_dict:
-                    self.__field_dict[field_name].deserialize = field
+                if field_name in self._field_dict:
+                    self._field_dict[field_name].deserialize = field
                 else:
-                    self.__field_dict[field_name] = CompositeField(
+                    self._field_dict[field_name] = CompositeField(
                         deserialize=field)
                 self.__dict__[field_name] = None
 
     def to_json(self, filename=None):
         json_dict = {}
-        for field_name, field in self.__field_dict.items():
+        for field_name, field in self._field_dict.items():
             if self.__dict__[field_name] is None and field.serialize.optional:
                 continue
 
@@ -63,7 +63,7 @@ class JSONBase():
 
         data_dict = json.loads(raw_json)
 
-        for field_name, field in self.__field_dict.items():
+        for field_name, field in self._field_dict.items():
             deserialize = field.deserialize
 
             if deserialize.name in data_dict:

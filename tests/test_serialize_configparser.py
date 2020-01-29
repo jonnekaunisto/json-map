@@ -13,7 +13,7 @@ fruit_basket_test_file = test_data_path + 'fruitBasket.ini'
 
 class BasketDetails(ConfigSectionBase):
     def __init__(self):
-        super().__init__('BasketDetails')
+        super().__init__()
 
         self.name = DeserializeConfigOption()
         self.randomOptional = DeserializeConfigOption(optional=True)
@@ -34,7 +34,7 @@ class FruitBasket(ConfigBase):
         self.intString = DeserializeConfigOption(section='BasketDetails',
                                                  kind=int)
 
-        self.details = DeserializeConfigSection()
+        self.details = DeserializeConfigSection(section='BasketDetails')
         self.init_deserialize_config()
 
         self.name = SerializeConfigOption(section='BasketDetails')
@@ -49,6 +49,9 @@ class FruitBasket(ConfigBase):
 
         self.private = ''
         self.optionalString = None
+        self.details = BasketDetails()
+
+        self.init_section_values()
 
 
 def test_serialize_config():
@@ -88,13 +91,6 @@ def test_serialize_config_file():
     with open(temp_file, 'r') as f:
         raw_json = f.read()
     os.remove(temp_file)
-
-
-def test_serialize_config_section():
-    details = BasketDetails()
-    details.name = 'basket'
-
-    details.to_config()
 
 
 def test_serialize_config_str():

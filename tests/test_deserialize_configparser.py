@@ -13,7 +13,7 @@ fruit_basket_missing_field_file = test_data_path + 'fruitBasketMissingField.ini'
 
 class BasketDetails(ConfigSectionBase):
     def __init__(self, section):
-        super().__init__(section)
+        super().__init__()
 
         self.name = SerializeConfigOption()
         self.randomOptional = SerializeConfigOption(optional=True)
@@ -36,7 +36,7 @@ class FruitBasket(ConfigBase):
         self.intString = SerializeConfigOption(section='BasketDetails')
         self.optionalString = SerializeConfigOption(optional=True)
 
-        self.details = SerializeConfigSection()
+        self.details = SerializeConfigSection('BasketDetails')
 
         self.init_serialize_config()
 
@@ -47,8 +47,8 @@ class FruitBasket(ConfigBase):
         self.intString = DeserializeConfigOption(section='BasketDetails',
                                                  kind=int)
 
-        self.details = DeserializeConfigSection()
-        self.additionalDetails = DeserializeConfigSection()
+        self.details = DeserializeConfigSection(section='BasketDetails')
+        self.additionalDetails = DeserializeConfigSection(section='BasketDetails')
 
         self.init_deserialize_config()
 
@@ -56,6 +56,8 @@ class FruitBasket(ConfigBase):
         self.optionalString = None
         self.details = BasketDetails('BasketDetails')
         self.additionalDetails = BasketDetails('BasketDetails')
+
+        self.init_section_values()
 
 
 def test_deserialize_config():
@@ -73,28 +75,8 @@ def test_deserialize_config():
     assert details.intString == 12345
 
 
-def test_deserialize_config_section():
-    details = BasketDetails('BasketDetails')
-    details.from_config(fruit_basket_test_file)
-
-    assert details.name == 'basket'
-    assert details.iD == '1'
-    assert details.intString == 12345
-
-
 def test_deserialize_config_negative():
     basket = FruitBasket()
 
     with pytest.raises(Exception, match='"intString" option not in config'):
         basket.from_config(fruit_basket_missing_field_file)
-
-
-def test_deserialize_config_negative_section():
-    details = BasketDetails('BasketDetails')
-
-    with pytest.raises(Exception, match='"intString" option not in config'):
-        details.from_config(fruit_basket_missing_field_file)
-
-    with pytest.raises(Exception, match='"N/A" section not in config'):
-        details = BasketDetails('N/A')
-        details.from_config(fruit_basket_test_file)

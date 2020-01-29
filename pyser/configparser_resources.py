@@ -52,20 +52,17 @@ class ConfigBaseParent():
                 self.__dict__[field_name].from_config(filename)
 
 
-# TODO: get rid of assigning section in init
 class ConfigSectionBase(ConfigBaseParent):
     '''ConfigSectionBase
     '''
-    def __init__(self, section):
+    def __init__(self):
         super().__init__()
-        self.section = section
 
     def init_deserialize_config(self):
         for field_name, field in self.__dict__.items():
             if type(field) is DeserializeConfigOption:
                 if field.name is None:
                     field.name = field_name
-                field.section = self.section
 
                 if field_name in self._config_key_dict:
                     self._config_key_dict[field_name].deserialize = field
@@ -79,13 +76,23 @@ class ConfigSectionBase(ConfigBaseParent):
             if type(field) is SerializeConfigOption:
                 if field.name is None:
                     field.name = field_name
-                field.section = self.section
+
                 if field_name in self._config_key_dict:
                     self._config_key_dict[field_name].serialize = field
                 else:
                     self._config_key_dict[field_name] = CompositeConfigOption(
                         serialize=field)
                 self.__dict__[field_name] = None
+
+    def __set_serialize_section__(self, section):
+        for field in self._config_key_dict.values():
+            if field.serialize is not None:
+                field.serialize.section = section
+
+    def __set_deserialize_section__(self, section):
+        for field in self._config_key_dict.values():
+            if field.deserialize is not None:
+                field.deserialize.section = section
 
 
 class ConfigBase(ConfigBaseParent):
@@ -128,6 +135,15 @@ class ConfigBase(ConfigBaseParent):
                 else:
                     self._config_key_dict[field_name] = CompositeConfigSection(
                         serialize=field)
+
+    def init_section_values(self):
+        for field_name, field in self._config_key_dict.items():
+            if type(field) is CompositeConfigSection:
+                target = self.__dict__[field_name]
+                if field.serialize is not None:
+                    target.__set_serialize_section__(field.serialize.section)
+                if field.deserialize is not None:
+                    target.__set_deserialize_section__(field.deserialize.section)
 
 
 class CompositeConfigOption():
@@ -180,13 +196,21 @@ class CompositeConfigSection():
     __repr__ = __str__
 
 
-# TODO: add adding section name here
-class SerializeConfigSection():
-    def __init__(self, optional=False):
+class ConfigSection():
+    def __str__(self):
+        return "(section {0} optional: {1})".format(
+            self.section, self.optional)
+
+    __repr__ = __str__
+
+
+class SerializeConfigSection(ConfigSection):
+    def __init__(self, section, optional=False):
+        self.section = section
         self.optional = optional
 
 
-# TODO: add adding sectin name here
-class DeserializeConfigSection():
-    def __init__(self, optional=False):
+class DeserializeConfigSection(ConfigSection):
+    def __init__(self, section, optional=False):
+        self.section = section
         self.optional = optional

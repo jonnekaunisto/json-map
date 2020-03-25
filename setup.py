@@ -37,6 +37,7 @@ class PyTest(TestCommand):
         errno = pytest.main(self.pytest_args.split(" "))
         sys.exit(errno)
 
+
 cmdclass = {'test': PyTest}  # Define custom commands.
 
 # Define the requirements for specific execution needs.
@@ -49,6 +50,16 @@ test_reqs = [
         'coveralls>=1.1,<2.0',
         'rstvalidator',
 ]
+
+doc_reqs = [
+        'sphinx_rtd_theme>=0.1.10b0S',
+        'Sphinx>=1.5.2',
+]
+
+extra_reqs = {
+    "doc": doc_reqs,
+    "test": test_reqs
+}
 
 with open('README.rst', 'r', 'utf-8') as fh:
     long_description = fh.read()
@@ -63,7 +74,7 @@ setup(
     url="https://github.com/jonnekaunisto/pyser",
     license='MIT License',
     keywords="serialize, deserialize",
-    packages=find_packages(exclude='docs'),
+    packages=find_packages(exclude=['docs', 'test']),
     cmdclass=cmdclass,
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -72,4 +83,5 @@ setup(
     ],
     install_requires=requires,
     tests_require=test_reqs,
+    extras_require=extra_reqs,
 )

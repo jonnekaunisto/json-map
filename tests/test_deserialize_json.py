@@ -2,13 +2,16 @@ import pytest
 import os
 import sys
 
-from pyser import JSONBase, SerializeField, DeserializeField
+from pyser import JSONBase, SerializeField, DeserializeField, DeserializeObjectField
 
 currPath = os.path.dirname(os.path.abspath(__file__))
 raw_json = '{\"name\": \"basket\", \"fruit\": \"banana\", \"ref\": 123, \"intString\": 12345}'
 test_data_path = currPath + os.sep + 'test_data' + os.sep
 fruit_basket_test_file = test_data_path + 'fruitBasket.json'
 fruit_basket_missing_field_file = test_data_path + 'fruitBasketMissingField.json'
+
+video_test_file = test_data_path + 'videos_test.json'
+
 
 
 class FruitBasket(JSONBase):
@@ -30,6 +33,22 @@ class FruitBasket(JSONBase):
         # self.created = Field(kind=Time)
         self.intString = SerializeField(kind=int)
         self.init_serialize_json()
+
+
+class VideoListResponse(JSONBase):
+    def __init__(self):
+        super().__init__()
+
+        self.videos = DeserializeObjectField(name="items", repeated=True,
+                                             kind=YouTubeVideo)
+        self.init_deserialize_json()
+
+
+class YouTubeVideo(JSONBase):
+    def __init__(self):
+        super().__init__()
+        self.id = DeserializeField()
+        self.init_deserialize_json()
 
 
 class FruitBasketNotCallable(JSONBase):
@@ -55,6 +74,13 @@ def test_deserialize_file():
     assert basket.fruit == "banana"
     assert basket.ref == 123
     assert basket.intString == 12345
+
+
+def test_complex_deserialize():
+    videoResponse = VideoListResponse()
+    videoResponse.from_json(filename=video_test_file)
+    for video in videoResponse.videos:
+        print(video.id)
 
 
 def test_deserialize_negative():

@@ -9,49 +9,49 @@ class JSONBase():
     def init_serialize_json(self):
         '''initializes all the variables that have to do with serializing
         '''
-        for field_name, field in self.__dict__.items():
+        for var_name, field in self.__dict__.items():
             if type(field) is SerializeField or\
                type(field) is SerializeObjectField:
 
                 # If name is not specified use the name of the variable
                 if field.name is None:
-                    field.name = field_name
+                    field.name = var_name
 
-                if field_name in self._field_dict:
-                    self._field_dict[field_name].serialize = field
+                if var_name in self._field_dict:
+                    self._field_dict[var_name].serialize = field
                 else:
-                    self._field_dict[field_name] = CompositeField(
+                    self._field_dict[var_name] = CompositeField(
                         serialize=field)
 
-                self.__dict__[field_name] = None
+                self.__dict__[var_name] = None
 
     def init_deserialize_json(self):
         '''initializes all the variables that have to do with deserializing
         '''
-        for field_name, field in self.__dict__.items():
+        for var_name, field in self.__dict__.items():
             if type(field) is DeserializeField or\
                type(field) is DeserializeObjectField:
 
                 if field.name is None:
-                    field.name = field_name
+                    field.name = var_name
 
-                if field_name in self._field_dict:
-                    self._field_dict[field_name].deserialize = field
+                if var_name in self._field_dict:
+                    self._field_dict[var_name].deserialize = field
                 else:
-                    self._field_dict[field_name] = CompositeField(
+                    self._field_dict[var_name] = CompositeField(
                         deserialize=field)
-                self.__dict__[field_name] = None
+                self.__dict__[var_name] = None
 
     def to_json(self, filename=None):
         '''Serializes the object into a json file.
         '''
         json_dict = {}
-        for field_name, field in self._field_dict.items():
-            if self.__dict__[field_name] is None and field.serialize.optional:
+        for var_name, field in self._field_dict.items():
+            if self.__dict__[var_name] is None and field.serialize.optional:
                 continue
             # TODO: add an exception
             kind = field.serialize.kind
-            json_value = kind(self.__dict__[field_name])
+            json_value = kind(self.__dict__[var_name])
             json_dict[field.serialize.name] = json_value
 
         if filename is None:
@@ -71,29 +71,33 @@ class JSONBase():
         self.from_dict(data_dict)
 
     def from_dict(self, data_dict):
-        for field_name, field in self._field_dict.items():
+        for var_name, field in self._field_dict.items():
             deserialize = field.deserialize
+            sub_data_dict = data_dict
+            for key in deserialize.parent_keys:
+                sub_data_dict = sub_data_dict[key]
 
-            if deserialize.name not in data_dict and not deserialize.optional:
-                raise Exception('{} field not found in the json'.format(
-                        deserialize.name))
-            elif deserialize.name not in data_dict and deserialize.optional:
-                return
+            if deserialize.name not in sub_data_dict:
+                if not deserialize.optional:
+                    raise Exception('{} field not found in the json'.format(
+                            deserialize.name))
+                else:
+                    continue
 
             if type(deserialize) is DeserializeField:
-                self.__dict__[deserialize.name] = deserialize.kind(
-                    data_dict[deserialize.name])
+                self.__dict__[var_name] = deserialize.kind(
+                    sub_data_dict[deserialize.name])
             elif type(deserialize) is DeserializeObjectField:
                 if deserialize.repeated:
-                    self.__dict__[field_name] = []
-                    for value in data_dict[deserialize.name]:
+                    self.__dict__[var_name] = []
+                    for value in sub_data_dict[deserialize.name]:
                         obj = deserialize.kind()
                         obj.from_dict(value)
-                        self.__dict__[field_name].append(obj)
+                        self.__dict__[var_name].append(obj)
                 else:
-                    self.__dict__[field_name] = deserialize.kind()
-                    self.__dict__[field_name].from_dict(
-                        data_dict[deserialize.name])
+                    self.__dict__[var_name] = deserialize.kind()
+                    self.__dict__[var_name].from_dict(
+                        sub_data_dict[deserialize.name])
 
 
 class CompositeField():
@@ -122,10 +126,12 @@ class DeserializeField(Field):
         specifies if the value is optional, if value is not found as a field
         the variable is left as None
     '''
-    def __init__(self, name=None, kind=lambda x: x, optional=False):
+    def __init__(self, name=None, kind=lambda x: x, optional=False,
+                 parent_keys=[]):
         self.name = name
         self.kind = kind
         self.optional = optional
+        self.parent_keys = parent_keys
 
         if not callable(kind):
             raise Exception("Kind needs to be callable")
@@ -143,10 +149,12 @@ class SerializeField(Field):
         specifies if the value is optional, if value is None then it will not
         get serialized
     '''
-    def __init__(self, name=None, kind=lambda x: x, optional=False):
+    def __init__(self, name=None, kind=lambda x: x, optional=False,
+                 parent_keys=[]):
         self.name = name
         self.kind = kind
         self.optional = optional
+        self.parent_keys = parent_keys
 
         if not callable(kind):
             raise Exception("Kind needs to be callable")
@@ -163,17 +171,21 @@ class ObjectField():
 class SerializeObjectField(ObjectField):
     '''SerializeObjectField
     '''
-    def __init__(self, name=None, optional=False, repeated=False):
+    def __init__(self, name=None, optional=False, repeated=False,
+                 parent_keys=[]):
         self.name = name
         self.optional = optional
         self.repeated = repeated
+        self.parent_keys = parent_keys
 
 
 class DeserializeObjectField(ObjectField):
     '''DeserializeObjectField
     '''
-    def __init__(self, name=None, optional=False, repeated=False, kind=None):
+    def __init__(self, name=None, optional=False, repeated=False, kind=None,
+                 parent_keys=[]):
         self.name = name
         self.optional = optional
         self.repeated = repeated
         self.kind = kind
+        self.parent_keys = parent_keys

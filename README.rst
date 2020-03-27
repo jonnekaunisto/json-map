@@ -8,12 +8,14 @@ Pyser
 .. image:: https://codecov.io/gh/jonnekaunisto/pyser/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/jonnekaunisto/pyser
 
-PySer is a tool that helps with serializing and deserializing data in Python through intuitive mappings in a Python class.
+PySer(full documentation_) is a library for serializing and deserializing data in different data formats through intuitive mappings in defined inside a Python class.
+
+Current formats supported are JSON and config files, with more coming later on.
 
 Examples
 --------
 
-JSON serializing and deserializing class
+Class mappings for serializing and deserializing in JSON
 
 .. code:: python
 
@@ -56,7 +58,7 @@ Serializing to a JSON file
     basket = FruitBasket()
     basket.to_json(filename="basket.json")
 
-File contents of basket.json:
+File contents of basket.json after serializing:
 
 .. code:: json
 
@@ -134,4 +136,12 @@ Contribute
 
 Maintainers
 -----------
-jonnekaunisto (owner)
+- jonnekaunisto_ (owner)
+
+
+.. PySer links
+.. _documentation: https://pyser.readthedocs.io/en/latest/
+
+
+.. People
+.. _jonnekaunisto: https://github.com/jonnekaunisto

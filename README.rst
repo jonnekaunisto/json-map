@@ -37,6 +37,8 @@ JSON serializing and deserializing class
             self.items =          SerializeField(repeated=True)
             self.register =       SerializeField(parent_keys=["checkout"], kind=int)
             self.amount =         SerializeField(parent_keys=["checkout"], kind=int)
+            self.init_serialize_json()
+
             
             self.name =           "basket"
             self.optionalString = None

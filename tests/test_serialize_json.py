@@ -2,7 +2,8 @@ import pytest
 import os
 import sys
 
-from pyser import JSONBase, SerializeField, DeserializeField
+from pyser import (JSONBase, SerializeField, DeserializeField, 
+                   SerializeObjectField)
 
 basket_json = "{\"name\": \"basket\", \"fruit\": \"banana\", \"ref\": 123, \"intString\": 12345}"
 
@@ -38,6 +39,22 @@ class FruitBasketNotCallable(JSONBase):
         self.init_serialize_json()
 
 
+class YouTubeVideo(JSONBase):
+    def __init__(self):
+        super().__init__()
+        self.id = SerializeField()
+        self.snippet = SerializeObjectField()
+        self.init_serialize_json()
+
+
+class Snippet(JSONBase):
+    def __init__(self):
+        super().__init__()
+        self.title = SerializeField()
+
+        self.init_serialize_json()
+
+
 def test_serialize():
     basket = FruitBasket()
     assert basket.name == 'basket'
@@ -65,10 +82,29 @@ def test_serialize_file():
     os.remove(temp_file)
 
 
+def test_complex_serialize():
+    real_dict = {'id': 1, 'snippet': {'title': 'hello world'}}
+    video = YouTubeVideo()
+
+    video.id = 1
+
+    video.snippet = Snippet()
+    video.snippet.title = "hello world"
+
+    assert real_dict == video.to_dict()
+
+
 def test_serialize_negative():
     with pytest.raises(Exception, match="Kind needs to be callable"):
         basket = FruitBasketNotCallable()
 
+    with pytest.raises(Exception, match="var \"title\" is None"):
+        video = YouTubeVideo()
+        video.id = 1
+        video.snippet = Snippet()
+        video.to_dict()
+
 
 def test_serialize_str():
     str(SerializeField())
+    str(SerializeObjectField())

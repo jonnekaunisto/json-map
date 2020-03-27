@@ -43,18 +43,18 @@ class FruitBasket(ConfigBase):
         self.name = SerializeConfigOption(section='BasketDetails')
         self.fruit = SerializeConfigOption(section='Items')
         self.iD = SerializeConfigOption(name='ref', section='BasketDetails')
-        self.private = ''  # alternatively self.private = Field(private=True)
         # self.created = Field(kind=Time)
         self.intString = SerializeConfigOption(section='BasketDetails')
         self.optionalString = SerializeConfigOption(optional=True)
 
         self.init_serialize_config()
 
-        self.private = ''
         self.optionalString = None
         self.details = BasketDetails()
 
         self.init_section_values()
+
+        self.private = ''
 
 
 def test_serialize_config():

@@ -9,11 +9,12 @@ from pyser.configparser_resources import CompositeConfigOption
 currPath = os.path.dirname(os.path.abspath(__file__))
 test_data_path = currPath + os.sep + 'test_data' + os.sep
 fruit_basket_test_file = test_data_path + 'fruitBasket.ini'
-fruit_basket_missing_field_file = test_data_path + 'fruitBasketMissingField.ini'
+fruit_basket_missing_field = test_data_path + 'fruitBasketMissingField.ini'
+fruit_basket_missing_section = test_data_path + 'fruitBasketMissingSection.ini'
 
 
 class BasketDetails(ConfigSectionBase):
-    def __init__(self, section):
+    def __init__(self):
         super().__init__()
 
         self.name = SerializeConfigOption()
@@ -55,8 +56,8 @@ class FruitBasket(ConfigBase):
 
         self.private = ''
         self.optionalString = None
-        self.details = BasketDetails('BasketDetails')
-        self.additionalDetails = BasketDetails('BasketDetails')
+        self.details = BasketDetails()
+        self.additionalDetails = BasketDetails()
 
         self.init_section_values()
 
@@ -80,4 +81,7 @@ def test_deserialize_config_negative():
     basket = FruitBasket()
 
     with pytest.raises(Exception, match='"intString" option not in config'):
-        basket.from_config(fruit_basket_missing_field_file)
+        basket.from_config(fruit_basket_missing_field)
+
+    with pytest.raises(Exception, match='"Items" section not in config'):
+        basket.from_config(fruit_basket_missing_section)

@@ -7,7 +7,7 @@ class JSONBase():
         self._field_dict = {}
 
     def init_serialize_json(self):
-        '''initializes all the variables that have to do with serializing
+        '''Initializes all the variables that have to do with serializing
         '''
         for var_name, field in self.__dict__.items():
             if type(field) is SerializeField or\
@@ -26,7 +26,7 @@ class JSONBase():
                 self.__dict__[var_name] = None
 
     def init_deserialize_json(self):
-        '''initializes all the variables that have to do with deserializing
+        '''Initializes all the variables that have to do with deserializing
         '''
         for var_name, field in self.__dict__.items():
             if type(field) is DeserializeField or\
@@ -45,20 +45,34 @@ class JSONBase():
     def to_json(self, filename=None):
         '''Serializes the object into a json file.
         '''
-        json_dict = {}
-        for var_name, field in self._field_dict.items():
-            if self.__dict__[var_name] is None and field.serialize.optional:
-                continue
-            # TODO: add an exception
-            kind = field.serialize.kind
-            json_value = kind(self.__dict__[var_name])
-            json_dict[field.serialize.name] = json_value
+        json_dict = self.to_dict()
 
         if filename is None:
             return json.dumps(json_dict)
 
         with open(filename, 'w') as f:
             f.write(json.dumps(json_dict))
+
+    def to_dict(self):
+        json_dict = {}
+        for var_name, field in self._field_dict.items():
+            if self.__dict__[var_name] is None:
+                if field.serialize.optional:
+                    continue
+                else:
+                    raise Exception('var \"{}\" is None'.format(var_name))
+
+            serialize = field.serialize
+
+            if type(serialize) is SerializeField:
+                kind = field.serialize.kind
+                json_value = kind(self.__dict__[var_name])
+                json_dict[serialize.name] = json_value
+            elif type(serialize) is SerializeObjectField:
+                obj = self.__dict__[var_name]
+                json_dict[serialize.name] = obj.to_dict()
+
+        return json_dict
 
     def from_json(self, filename=None, raw_json=None):
         if filename is not None:
@@ -86,6 +100,7 @@ class JSONBase():
             if type(deserialize) is DeserializeField:
                 self.__dict__[var_name] = deserialize.kind(
                     sub_data_dict[deserialize.name])
+                #TODO: Implement repeated
             elif type(deserialize) is DeserializeObjectField:
                 if deserialize.repeated:
                     self.__dict__[var_name] = []
@@ -179,7 +194,23 @@ class SerializeObjectField(ObjectField):
 
 
 class DeserializeObjectField(ObjectField):
-    '''DeserializeObjectField
+    '''
+    DeserializeObjectField
+
+    Attributes
+    -----------
+
+    name
+        The name of the field that should contain this object.
+
+    optional
+        Specifies if this field is optional.
+
+    repeated
+        Specifies if this field contains a list.
+
+    kind
+        Specifies which class should be instantiated for this field.
     '''
     def __init__(self, name=None, optional=False, repeated=False, kind=None,
                  parent_keys=[]):

@@ -43,7 +43,7 @@ JSON serializing and deserializing class
             self.fruit =          'banana'
             self.iD =             '123'
             self.intString =      '12345'
-            self.optionalString =  None
+            self.optionalString = None
             self.items =          ['paper', 'rock']
             self.register =       '1'
             self.amount =         '10'

@@ -8,11 +8,12 @@ Pyser
 .. image:: https://codecov.io/gh/jonnekaunisto/pyser/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/jonnekaunisto/pyser
 
-PySer is a tool that maps fields from a file to variables in a python object and vice versa.
 PySer is a tool that helps with serializing and deserializing data in Python through intuitive mappings in a Python class.
 
+Examples
+--------
 
-Example PySer Class implementation:
+JSON serializing and deserializing class
 
 .. code:: python
 
@@ -48,7 +49,7 @@ Example PySer Class implementation:
             self.amount = "10"
 
 
-Example of serializing to a json file
+Serializing to a JSON file
 
 .. code:: python
 
@@ -81,4 +82,56 @@ Similarly deserialization from a json file:
     basket = FruitBasket()
     basket.from_json(raw_json=raw_json)
 
+Installation
+------------
 
+**Installation by hand:** you can download the source files from PyPi or Github:
+
+.. code:: bash
+
+    $ (sudo) python setup.py install
+
+**Installation with pip:** make sure that you have ``pip`` installed, type this in a terminal:
+
+.. code:: bash
+
+    $ (sudo) pip install pyser
+
+Documentation
+-------------
+
+Running `build_docs` has additional dependencies that require installation.
+
+.. code:: bash
+
+    $ (sudo) pip install pyser[docs]
+
+Running Tests
+-------------
+Run the python command
+
+.. code:: bash 
+
+   python setup.py test
+
+Contribute
+----------
+1. Fork the repository from Github
+2. Clone your fork 
+
+.. code:: bash 
+
+   git clone https://github.com/yourname/pyser.git
+
+3. Add the main repository as a remote
+
+.. code:: bash
+
+    git remote add upstream https://github.com/jonnekaunisto/pyser.git
+
+4. Create a pull request and follow the guidelines
+
+
+Maintainers
+-----------
+jonnekaunisto (owner)

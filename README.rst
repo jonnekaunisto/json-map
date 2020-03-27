@@ -108,6 +108,20 @@ Running `build_docs` has additional dependencies that require installation.
 
     $ (sudo) pip install pyser[docs]
 
+The documentation can be generated and viewed via:
+
+.. code:: bash
+
+    $ python setup.py build_docs
+
+You can pass additional arguments to the documentation build, such as clean build:
+
+.. code:: bash
+
+    $ python setup.py build_docs -E
+
+More information is available from the `Sphinx`_ documentation.
+
 Running Tests
 -------------
 Run the python command
@@ -142,6 +156,10 @@ Maintainers
 .. PySer links
 .. _documentation: https://pyser.readthedocs.io/en/latest/
 
+.. Software, Tools, Libraries
+.. _`Sphinx`: https://www.sphinx-doc.org/en/master/setuptools.html
 
 .. People
 .. _jonnekaunisto: https://github.com/jonnekaunisto
+
+

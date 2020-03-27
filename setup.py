@@ -32,13 +32,25 @@ class PyTest(TestCommand):
             import pytest
         except ImportError:
             raise ImportError('Running tests requires additional dependencies.'
-                              '\nPlease run (pip install moviepy[test])')
+                              '\nPlease run (pip install pytest[test])')
 
         errno = pytest.main(self.pytest_args.split(" "))
         sys.exit(errno)
 
 
 cmdclass = {'test': PyTest}  # Define custom commands.
+
+
+if "build_docs" in sys.argv:
+    try:
+        from sphinx.setup_command import BuildDoc
+    except ImportError:
+        raise ImportError(
+            "Running the documenation builds has additional"
+            " dependencies. Please run (pip install pyser[docs])"
+        )
+    cmdclass["build_docs"] = BuildDoc
+
 
 # Define the requirements for specific execution needs.
 requires = [

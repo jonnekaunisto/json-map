@@ -31,24 +31,22 @@ JSON serializing and deserializing class
 
             self.name =           SerializeField()
             self.fruit =          SerializeField()
-            self.iD =             SerializeField(name="ref", kind=int)
+            self.iD =             SerializeField(name='ref', kind=int)
             self.intString =      SerializeField(kind=int)
             self.optionalString = SerializeField(optional=True)
             self.items =          SerializeField(repeated=True)
-            self.register =       SerializeField(parent_keys=["checkout"], kind=int)
-            self.amount =         SerializeField(parent_keys=["checkout"], kind=int)
+            self.register =       SerializeField(parent_keys=['checkout'], kind=int)
+            self.amount =         SerializeField(parent_keys=['checkout'], kind=int)
             self.init_serialize_json()
-
             
-            self.name =           "basket"
-            self.optionalString = None
-
-            self.fruit =         'banana'
-            self.iD =            "123"
-            self.intString =     "12345"
-            self.items =         ["paper", "rock"]
-            self.register =      "1"
-            self.amount =        "10"
+            self.name =           'basket'
+            self.fruit =          'banana'
+            self.iD =             '123'
+            self.intString =      '12345'
+            self.optionalString =  None
+            self.items =          ['paper', 'rock']
+            self.register =       '1'
+            self.amount =         '10'
 
 
 Serializing to a JSON file

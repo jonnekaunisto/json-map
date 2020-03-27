@@ -59,20 +59,20 @@ File contents of basket.json:
 
 .. code:: json
 
-{
-    "name": "basket",
-    "fruit": "banana",
-    "ref": 123,
-    "intString": 12345,
-    "items": [
-        "paper",
-        "rock"
-    ],
-    "checkout": {
-        "register": 1,
-        "amount": 10
+    {
+        "name": "basket",
+        "fruit": "banana",
+        "ref": 123,
+        "intString": 12345,
+        "items": [
+            "paper",
+            "rock"
+        ],
+        "checkout": {
+            "register": 1,
+            "amount": 10
+        }
     }
-}
 
 Similarly deserialization from a json file:
 

@@ -1,11 +1,19 @@
 import pytest
 import os
 import sys
+import json
 
 from pyser import (JSONBase, SerializeField, DeserializeField, 
                    SerializeObjectField)
 
-basket_json = "{\"name\": \"basket\", \"fruit\": \"banana\", \"ref\": 123, \"intString\": 12345}"
+
+currPath = os.path.dirname(os.path.abspath(__file__))
+test_data_path = currPath + os.sep + 'test_data' + os.sep
+basket_complex_json = test_data_path + 'fruitBasketComplex.json'
+with open(basket_complex_json, 'r') as f:
+    basket_json = f.read()
+    basket_dict = json.loads(basket_json)
+    basket_json = json.dumps(basket_dict)
 
 
 class FruitBasket(JSONBase):
@@ -18,6 +26,10 @@ class FruitBasket(JSONBase):
         # self.created = Field(kind=Time)
         self.intString = SerializeField(kind=int)
         self.optionalString = SerializeField(optional=True)
+        self.items = SerializeField(repeated=True)
+        self.register = SerializeField(parent_keys=["checkout"], kind=int)
+        self.amount = SerializeField(parent_keys=["checkout"], kind=int)
+
         self.init_serialize_json()
 
         self.name = DeserializeField()
@@ -31,12 +43,36 @@ class FruitBasket(JSONBase):
         self.name = "basket"
         self.optionalString = None
 
+        self.fruit = 'banana'
+        self.iD = "123"
+        self.intString = "12345"
+        self.items = ["paper", "rock"]
+        self.register = "1"
+        self.amount = "10"
+
 
 class FruitBasketNotCallable(JSONBase):
     def __init__(self):
         super().__init__()
         self.name = SerializeField(kind="not a valid kind")
         self.init_serialize_json()
+
+
+class FruitBasketOverlappingKeys(JSONBase):
+    def __init__(self):
+        super().__init__()
+        self.name = SerializeField()
+        self.thingy = SerializeField(parent_keys=['name'])
+        self.init_serialize_json()
+
+
+class VideoListResponse(JSONBase):
+    def __init__(self):
+        super().__init__()
+        self.videos = SerializeObjectField(name="items", repeated=True)
+        self.init_serialize_json()
+
+        self.videos = []
 
 
 class YouTubeVideo(JSONBase):
@@ -58,10 +94,6 @@ class Snippet(JSONBase):
 def test_serialize():
     basket = FruitBasket()
     assert basket.name == 'basket'
-    basket.fruit = 'banana'
-    basket.iD = "123"
-    basket.intString = "12345"
-
     assert basket.to_json() == basket_json
 
 
@@ -70,9 +102,6 @@ def test_serialize_file():
 
     basket = FruitBasket()
     assert basket.name == 'basket'
-    basket.fruit = 'banana'
-    basket.iD = "123"
-    basket.intString = "12345"
 
     basket.to_json(filename=temp_file)
 
@@ -84,6 +113,8 @@ def test_serialize_file():
 
 def test_complex_serialize():
     real_dict = {'id': 1, 'snippet': {'title': 'hello world'}}
+    videoResponse = VideoListResponse()
+
     video = YouTubeVideo()
 
     video.id = 1
@@ -91,7 +122,11 @@ def test_complex_serialize():
     video.snippet = Snippet()
     video.snippet.title = "hello world"
 
+    videoResponse.videos.append(video)
+    videoResponse.videos.append(video)
+
     assert real_dict == video.to_dict()
+    assert real_dict == videoResponse.to_dict()['items'][0]
 
 
 def test_serialize_negative():
@@ -103,6 +138,12 @@ def test_serialize_negative():
         video.id = 1
         video.snippet = Snippet()
         video.to_dict()
+
+    with pytest.raises(Exception, match="parent key \"name\" is populated"):
+        basket = FruitBasketOverlappingKeys()
+        basket.name = "name"
+        basket.thingy = "thing"
+        basket.to_dict()
 
 
 def test_serialize_str():

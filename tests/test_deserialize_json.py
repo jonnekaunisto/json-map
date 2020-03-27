@@ -7,14 +7,17 @@ from pyser import (JSONBase, SerializeField, DeserializeField,
                    DeserializeObjectField)
 
 currPath = os.path.dirname(os.path.abspath(__file__))
-raw_json = '{\"name\": \"basket\", \"fruit\": \"banana\", \"ref\": 123,\
-            \"intString\": 12345}'
 test_data_path = currPath + os.sep + 'test_data' + os.sep
 fruit_basket_test_file = test_data_path + 'fruitBasket.json'
 fruit_basket_missing_field_file = test_data_path +\
                                   'fruitBasketMissingField.json'
 
 video_test_file = test_data_path + 'videos_test.json'
+
+with open(fruit_basket_test_file, 'r') as f:
+    raw_json = f.read()
+    raw_dict = json.loads(raw_json)
+    raw_json = json.dumps(raw_dict)
 
 
 class FruitBasket(JSONBase):
@@ -27,12 +30,13 @@ class FruitBasket(JSONBase):
         # self.created = DeserializeField(kind=Time)
         self.intString = DeserializeField(kind=int)
         self.optionalString = DeserializeField(kind=str, optional=True)
+        self.items = DeserializeField(repeated=True)
         self.init_deserialize_json()
 
         self.name = SerializeField()
         self.fruit = SerializeField()
         self.iD = SerializeField(name='ref', kind=int)
-        self.private = ''  # alternatively self.private = Field(private=True)
+        self.private = ''
         # self.created = Field(kind=Time)
         self.intString = SerializeField(kind=int)
         self.init_serialize_json()

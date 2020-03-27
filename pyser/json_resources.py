@@ -54,7 +54,7 @@ class JSONBase():
             f.write(json.dumps(json_dict))
 
     def to_dict(self):
-        json_dict = {}
+        data_dict = {}
         for var_name, field in self._field_dict.items():
             if self.__dict__[var_name] is None:
                 if field.serialize.optional:
@@ -64,15 +64,37 @@ class JSONBase():
 
             serialize = field.serialize
 
-            if type(serialize) is SerializeField:
-                kind = field.serialize.kind
-                json_value = kind(self.__dict__[var_name])
-                json_dict[serialize.name] = json_value
-            elif type(serialize) is SerializeObjectField:
-                obj = self.__dict__[var_name]
-                json_dict[serialize.name] = obj.to_dict()
+            sub_data_dict = data_dict
+            for key in serialize.parent_keys:
+                if key in sub_data_dict:
+                    if type(sub_data_dict[key]) is dict:
+                        sub_data_dict = sub_data_dict[key]
+                    else:
+                        raise Exception(("parent key \"{}\" "
+                                        "is populated").format(key))
+                else:
+                    sub_data_dict[key] = {}
+                    sub_data_dict = sub_data_dict[key]
 
-        return json_dict
+            if type(serialize) is SerializeField:
+                kind = serialize.kind
+                if serialize.repeated:
+                    sub_data_dict[serialize.name] = []
+                    for value in self.__dict__[var_name]:
+                        sub_data_dict[serialize.name].append(kind(value))
+                else:
+                    json_value = kind(self.__dict__[var_name])
+                    sub_data_dict[serialize.name] = json_value
+            elif type(serialize) is SerializeObjectField:
+                if serialize.repeated:
+                    sub_data_dict[serialize.name] = []
+                    for obj in self.__dict__[var_name]:
+                        sub_data_dict[serialize.name].append(obj.to_dict())
+                else:
+                    obj = self.__dict__[var_name]
+                    sub_data_dict[serialize.name] = obj.to_dict()
+
+        return data_dict
 
     def from_json(self, filename=None, raw_json=None):
         if filename is not None:
@@ -98,9 +120,13 @@ class JSONBase():
                                 deserialize.name))
 
             if type(deserialize) is DeserializeField:
-                self.__dict__[var_name] = deserialize.kind(
-                    sub_data_dict[deserialize.name])
-                #TODO: Implement repeated
+                if deserialize.repeated:
+                    self.__dict__[var_name] = []
+                    for value in sub_data_dict[deserialize.name]:
+                        self.__dict__[var_name].append(deserialize.kind(value))
+                else:
+                    self.__dict__[var_name] = deserialize.kind(
+                        sub_data_dict[deserialize.name])
             elif type(deserialize) is DeserializeObjectField:
                 if deserialize.repeated:
                     self.__dict__[var_name] = []
@@ -141,10 +167,11 @@ class DeserializeField(Field):
         the variable is left as None
     '''
     def __init__(self, name=None, kind=lambda x: x, optional=False,
-                 parent_keys=[]):
+                 repeated=False, parent_keys=[]):
         self.name = name
         self.kind = kind
         self.optional = optional
+        self.repeated = repeated
         self.parent_keys = parent_keys
 
         if not callable(kind):
@@ -164,10 +191,11 @@ class SerializeField(Field):
         get serialized
     '''
     def __init__(self, name=None, kind=lambda x: x, optional=False,
-                 parent_keys=[]):
+                 repeated=False, parent_keys=[]):
         self.name = name
         self.kind = kind
         self.optional = optional
+        self.repeated = repeated
         self.parent_keys = parent_keys
 
         if not callable(kind):

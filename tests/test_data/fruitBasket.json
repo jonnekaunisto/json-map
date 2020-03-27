@@ -1,1 +1,1 @@
-{"name": "basket", "fruit": "banana", "ref": 123, "intString": 12345}
+{"name": "basket", "fruit": "banana", "ref": 123, "intString": 12345, "items": ["paper", "rock"]}

@@ -1,9 +1,10 @@
 import pytest
 import os
 
-from pyser import (ConfigSectionBase, ConfigBase, CompositeConfigOption,
+from pyser import (ConfigSectionBase, ConfigBase,
                    SerializeConfigOption, DeserializeConfigOption,
                    SerializeConfigSection, DeserializeConfigSection)
+from pyser.configparser_resources import CompositeConfigOption
 
 currPath = os.path.dirname(os.path.abspath(__file__))
 test_data_path = currPath + os.sep + 'test_data' + os.sep

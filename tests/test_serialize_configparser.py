@@ -2,9 +2,12 @@ import pytest
 import os
 import configparser
 
-from pyser import (ConfigSectionBase, ConfigBase, CompositeConfigOption,
+from pyser import (ConfigSectionBase, ConfigBase,
                    SerializeConfigOption, DeserializeConfigOption,
                    SerializeConfigSection, DeserializeConfigSection)
+
+from pyser.configparser_resources import (CompositeConfigOption, 
+                                          CompositeConfigSection)
 
 currPath = os.path.dirname(os.path.abspath(__file__))
 test_data_path = currPath + os.sep + 'test_data' + os.sep
@@ -97,4 +100,9 @@ def test_serialize_config_str():
     serialize = SerializeConfigOption()
     deserialize = DeserializeConfigOption()
 
-    str(CompositeConfigOption(serialize=serialize, deserialize=deserialize))
+    str(CompositeConfigOption(serialize=serialize, deserialize=deserialize)) 
+
+    serialize = SerializeConfigSection(section="something")
+    deserialize = SerializeConfigSection(section="something")
+
+    str(CompositeConfigSection(serialize=serialize, deserialize=deserialize))   

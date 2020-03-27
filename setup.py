@@ -45,15 +45,15 @@ requires = [
 ]
 
 test_reqs = [
-        'pytest-cov>=2.5.1',
-        'pytest>=3.0.0',
-        'coveralls>=1.1,<2.0',
-        'rstvalidator',
+    'pytest-cov>=2.5.1',
+    'pytest>=3.0.0',
+    'coveralls>=1.1,<2.0',
+    'rstvalidator',
 ]
 
 doc_reqs = [
-        'sphinx_rtd_theme>=0.1.10b0S',
-        'Sphinx>=1.5.2',
+    'sphinx_rtd_theme>=0.1.10b0S',
+    'Sphinx>=1.5.2',
 ]
 
 extra_reqs = {

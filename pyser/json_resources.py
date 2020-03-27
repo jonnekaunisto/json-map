@@ -78,11 +78,10 @@ class JSONBase():
                 sub_data_dict = sub_data_dict[key]
 
             if deserialize.name not in sub_data_dict:
-                if not deserialize.optional:
-                    raise Exception('{} field not found in the json'.format(
-                            deserialize.name))
-                else:
+                if deserialize.optional:
                     continue
+                raise Exception('{} field not found in the json'.format(
+                                deserialize.name))
 
             if type(deserialize) is DeserializeField:
                 self.__dict__[var_name] = deserialize.kind(

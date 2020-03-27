@@ -56,13 +56,13 @@ class JSONBase():
     def to_dict(self):
         data_dict = {}
         for var_name, field in self._field_dict.items():
-            if self.__dict__[var_name] is None:
-                if field.serialize.optional:
+            serialize = field.serialize
+
+            if self.__dict__.get(var_name, serialize.default) is None:
+                if serialize.optional:
                     continue
                 else:
                     raise Exception('var \"{}\" is None'.format(var_name))
-
-            serialize = field.serialize
 
             sub_data_dict = data_dict
             for key in serialize.parent_keys:
@@ -80,10 +80,11 @@ class JSONBase():
                 kind = serialize.kind
                 if serialize.repeated:
                     sub_data_dict[serialize.name] = []
-                    for value in self.__dict__[var_name]:
+                    for value in self.__dict__.get(var_name):
                         sub_data_dict[serialize.name].append(kind(value))
                 else:
-                    json_value = kind(self.__dict__[var_name])
+                    json_value = kind(self.__dict__.get(var_name,
+                                                        serialize.default))
                     sub_data_dict[serialize.name] = json_value
             elif type(serialize) is SerializeObjectField:
                 if serialize.repeated:
@@ -165,6 +166,8 @@ class DeserializeField(Field):
     optional:
         specifies if the value is optional, if value is not found as a field
         the variable is left as None
+    parent_keys
+        The parent keys of this field.
     '''
     def __init__(self, name=None, kind=lambda x: x, optional=False,
                  repeated=False, parent_keys=[]):
@@ -189,14 +192,20 @@ class SerializeField(Field):
     optional:
         specifies if the value is optional, if value is None then it will not
         get serialized
+    parent_keys
+        The parent keys of this field.
+    default
+        The default value of this field. Field must be optional to have 
+        default value.
     '''
     def __init__(self, name=None, kind=lambda x: x, optional=False,
-                 repeated=False, parent_keys=[]):
+                 repeated=False, parent_keys=[], default=None):
         self.name = name
         self.kind = kind
         self.optional = optional
         self.repeated = repeated
         self.parent_keys = parent_keys
+        self.default = default
 
         if not callable(kind):
             raise Exception("Kind needs to be callable")
@@ -212,33 +221,47 @@ class ObjectField():
 
 class SerializeObjectField(ObjectField):
     '''SerializeObjectField
+    name:
+        name of the field that should serialize to, defaults to the variable
+        name
+    kind:
+        the type that the field should be serialized to, defaults to the type
+        that the variable is
+    optional:
+        specifies if the value is optional, if value is None then it will not
+        get serialized
+    parent_keys
+        The parent keys of this field.
+
     '''
     def __init__(self, name=None, optional=False, repeated=False,
-                 parent_keys=[]):
+                 parent_keys=[], default=None):
         self.name = name
         self.optional = optional
         self.repeated = repeated
         self.parent_keys = parent_keys
+        self.default = default
+
+        if not optional and default is not None:
+            raise Exception("Default value populated while optional")
+
+        if not type(parent_keys) is list:
+            raise Exception("parent keys has to be of type list")
 
 
 class DeserializeObjectField(ObjectField):
-    '''
-    DeserializeObjectField
-
-    Attributes
-    -----------
+    '''DeserializeObjectField
 
     name
         The name of the field that should contain this object.
-
     optional
         Specifies if this field is optional.
-
     repeated
         Specifies if this field contains a list.
-
     kind
         Specifies which class should be instantiated for this field.
+    parent_keys
+        The parent keys of this field.
     '''
     def __init__(self, name=None, optional=False, repeated=False, kind=None,
                  parent_keys=[]):

@@ -17,7 +17,7 @@ JSON serializing and deserializing class
 
 .. code:: python
 
-   from pyser import PySer, Field
+   from pyser import JSONBase, SerializeField, DeserializeField
    class FruitBasket(JSONBase):
         def __init__(self):
             super().__init__()

@@ -21,32 +21,32 @@ JSON serializing and deserializing class
    class FruitBasket(JSONBase):
         def __init__(self):
             super().__init__()
-            self.name = DeserializeField()
-            self.fruit = DeserializeField()
-            self.iD = DeserializeField(name='ref', kind=int)
-            self.intString = DeserializeField(kind=int)
+            self.name =           DeserializeField()
+            self.fruit =          DeserializeField()
+            self.iD =             DeserializeField(name='ref', kind=int)
+            self.intString =      DeserializeField(kind=int)
             self.optionalString = DeserializeField(kind=str, optional=True)
-            self.items = DeserializeField(repeated=True)
+            self.items =          DeserializeField(repeated=True)
             self.init_deserialize_json()
 
-            self.name = SerializeField()
-            self.fruit = SerializeField()
-            self.iD = SerializeField(name="ref", kind=int)
-            self.intString = SerializeField(kind=int)
+            self.name =           SerializeField()
+            self.fruit =          SerializeField()
+            self.iD =             SerializeField(name="ref", kind=int)
+            self.intString =      SerializeField(kind=int)
             self.optionalString = SerializeField(optional=True)
-            self.items = SerializeField(repeated=True)
-            self.register = SerializeField(parent_keys=["checkout"], kind=int)
-            self.amount = SerializeField(parent_keys=["checkout"], kind=int)
+            self.items =          SerializeField(repeated=True)
+            self.register =       SerializeField(parent_keys=["checkout"], kind=int)
+            self.amount =         SerializeField(parent_keys=["checkout"], kind=int)
             
-            self.name = "basket"
+            self.name =           "basket"
             self.optionalString = None
 
-            self.fruit = 'banana'
-            self.iD = "123"
-            self.intString = "12345"
-            self.items = ["paper", "rock"]
-            self.register = "1"
-            self.amount = "10"
+            self.fruit =         'banana'
+            self.iD =            "123"
+            self.intString =     "12345"
+            self.items =         ["paper", "rock"]
+            self.register =      "1"
+            self.amount =        "10"
 
 
 Serializing to a JSON file

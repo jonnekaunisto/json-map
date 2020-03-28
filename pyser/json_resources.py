@@ -65,6 +65,7 @@ class JSONBase():
                     raise Exception('var \"{}\" is None'.format(var_name))
 
             sub_data_dict = data_dict
+            # iterate through parent keys until target key
             for key in serialize.parent_keys:
                 if key in sub_data_dict:
                     if type(sub_data_dict[key]) is dict:
@@ -111,8 +112,15 @@ class JSONBase():
         for var_name, field in self._field_dict.items():
             deserialize = field.deserialize
             sub_data_dict = data_dict
+
             for key in deserialize.parent_keys:
-                sub_data_dict = sub_data_dict[key]
+                if key in sub_data_dict:
+                    sub_data_dict = sub_data_dict[key]
+                elif deserialize.optional:
+                    continue
+                else:
+                    raise Exception(("parent_key \"{}\" does not exists for "
+                                     "field {}").format(key, deserialize.name))
 
             if deserialize.name not in sub_data_dict:
                 if deserialize.optional:

@@ -2,6 +2,8 @@ import pytest
 import os
 import sys
 import json
+import re
+
 
 from pyser import (JSONBase, SerializeField, DeserializeField,
                    DeserializeObjectField)
@@ -20,15 +22,30 @@ with open(fruit_basket_test_file, 'r') as f:
     raw_json = json.dumps(raw_dict)
 
 
+def camel_to_underscore(name):
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
+
+
+def underscore_to_camel(word):
+    word = ''.join(x.capitalize() or '_' for x in word.split('_'))
+    word = word[0].lower() + word[1:]
+    return word
+
+
 class FruitBasket(JSONBase):
     def __init__(self):
         super().__init__()
         self.name = DeserializeField()
         self.fruit = DeserializeField()
-        self.iD = DeserializeField(name='ref', kind=int)
+        self.iD = DeserializeField(name_conv=lambda x: 'ref', kind=int)
         self.private = ''
         # self.created = DeserializeField(kind=Time)
+        
+        self.int_string = DeserializeField(name_conv=underscore_to_camel,
+                                           kind=int)
+        '''
         self.intString = DeserializeField(kind=int)
+        '''
         self.optionalString = DeserializeField(kind=str, optional=True)
         self.items = DeserializeField(repeated=True)
         self.init_deserialize_json()
@@ -38,7 +55,7 @@ class FruitBasket(JSONBase):
         self.iD = SerializeField(name='ref', kind=int)
         self.private = ''
         # self.created = Field(kind=Time)
-        self.intString = SerializeField(kind=int)
+        self.int_string = SerializeField(kind=int)
         self.init_serialize_json()
 
 
@@ -86,7 +103,7 @@ def test_deserialize_raw_json():
     assert basket.name == "basket"
     assert basket.fruit == "banana"
     assert basket.iD == 123
-    assert basket.intString == 12345
+    assert basket.int_string == 12345
 
 
 def test_deserialize_file():
@@ -95,7 +112,7 @@ def test_deserialize_file():
     assert basket.name == "basket"
     assert basket.fruit == "banana"
     assert basket.iD == 123
-    assert basket.intString == 12345
+    assert basket.int_string == 12345
 
 
 def test_complex_deserialize():

@@ -15,7 +15,7 @@ class JSONBase():
 
                 # If name is not specified use the name of the variable
                 if field.name is None:
-                    field.name = var_name
+                    field.name = field.name_conv(var_name)
 
                 if var_name in self._field_dict:
                     self._field_dict[var_name].serialize = field
@@ -33,7 +33,7 @@ class JSONBase():
                type(field) is DeserializeObjectField:
 
                 if field.name is None:
-                    field.name = var_name
+                    field.name = field.name_conv(var_name)
 
                 if var_name in self._field_dict:
                     self._field_dict[var_name].deserialize = field
@@ -169,9 +169,10 @@ class DeserializeField(Field):
     parent_keys
         The parent keys of this field.
     '''
-    def __init__(self, name=None, kind=lambda x: x, optional=False,
-                 repeated=False, parent_keys=[]):
+    def __init__(self, name=None, name_conv=lambda x: x, kind=lambda x: x,
+                 optional=False, repeated=False, parent_keys=[]):
         self.name = name
+        self.name_conv = name_conv
         self.kind = kind
         self.optional = optional
         self.repeated = repeated
@@ -195,12 +196,13 @@ class SerializeField(Field):
     parent_keys
         The parent keys of this field.
     default
-        The default value of this field. Field must be optional to have 
+        The default value of this field. Field must be optional to have
         default value.
     '''
-    def __init__(self, name=None, kind=lambda x: x, optional=False,
-                 repeated=False, parent_keys=[], default=None):
+    def __init__(self, name=None, name_conv=lambda x: x, kind=lambda x: x,
+                 optional=False, repeated=False, parent_keys=[], default=None):
         self.name = name
+        self.name_conv = name_conv
         self.kind = kind
         self.optional = optional
         self.repeated = repeated
@@ -234,9 +236,10 @@ class SerializeObjectField(ObjectField):
         The parent keys of this field.
 
     '''
-    def __init__(self, name=None, optional=False, repeated=False,
-                 parent_keys=[], default=None):
+    def __init__(self, name=None, name_conv=lambda x: x, optional=False,
+                 repeated=False, parent_keys=[], default=None):
         self.name = name
+        self.name_conv = name_conv
         self.optional = optional
         self.repeated = repeated
         self.parent_keys = parent_keys
@@ -263,9 +266,11 @@ class DeserializeObjectField(ObjectField):
     parent_keys
         The parent keys of this field.
     '''
-    def __init__(self, name=None, optional=False, repeated=False, kind=None,
-                 parent_keys=[]):
+    def __init__(self, name=None, name_conv=lambda x: x, optional=False,
+                 repeated=False, kind=None, parent_keys=[]):
+
         self.name = name
+        self.name_conv = name_conv
         self.optional = optional
         self.repeated = repeated
         self.kind = kind

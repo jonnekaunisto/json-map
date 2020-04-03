@@ -5,8 +5,8 @@ import json
 import re
 
 
-from pyser import (JSONBase, SerializeField, DeserializeField,
-                   DeserializeObjectField)
+from pyser import (BaseJSON, SchemaJSON, SerField, DeserField,
+                   DeserObjectField)
 
 currPath = os.path.dirname(os.path.abspath(__file__))
 test_data_path = currPath + os.sep + 'test_data' + os.sep
@@ -32,69 +32,62 @@ def underscore_to_camel(word):
     return word
 
 
-class FruitBasket(JSONBase):
+class FruitBasket(SchemaJSON, BaseJSON):
     def __init__(self):
-        super().__init__()
-        self.name = DeserializeField()
-        self.fruit = DeserializeField()
-        self.iD = DeserializeField(name_conv=lambda x: 'ref', kind=int)
-        self.private = ''
-        # self.created = DeserializeField(kind=Time)
         
-        self.int_string = DeserializeField(name_conv=underscore_to_camel,
+        self.name = DeserField()
+        self.fruit = DeserField()
+        self.iD = DeserField(name_conv=lambda x: 'ref', kind=int)
+        self.private = ''
+        # self.created = DeserField(kind=Time)
+        
+        self.int_string = DeserField(name_conv=underscore_to_camel,
                                            kind=int)
         '''
-        self.intString = DeserializeField(kind=int)
+        self.intString = DeserField(kind=int)
         '''
-        self.optionalString = DeserializeField(kind=str, optional=True)
-        self.items = DeserializeField(repeated=True)
-        self.init_deserialize_json()
+        self.optionalString = DeserField(kind=str, optional=True)
+        self.items = DeserField(repeated=True)
 
-        self.name = SerializeField()
-        self.fruit = SerializeField()
-        self.iD = SerializeField(name='ref', kind=int)
+        self.name = SerField()
+        self.fruit = SerField()
+        self.iD = SerField(name='ref', kind=int)
         self.private = ''
         # self.created = Field(kind=Time)
-        self.int_string = SerializeField(kind=int)
-        self.init_serialize_json()
+        self.int_string = SerField(kind=int)
 
 
-class VideoListResponse(JSONBase):
+class VideoListResponse(SchemaJSON, BaseJSON):
     def __init__(self):
-        super().__init__()
+        
 
-        self.videos = DeserializeObjectField(name="items", repeated=True,
+        self.videos = DeserObjectField(name="items", repeated=True,
                                              kind=YouTubeVideo)
-        self.init_deserialize_json()
 
 
-class YouTubeVideo(JSONBase):
+class YouTubeVideo(SchemaJSON, BaseJSON):
     def __init__(self):
-        super().__init__()
-        self.id = DeserializeField()
-        self.title = DeserializeField(parent_keys=['snippet'])
-        self.thumb = DeserializeField(name="url",
-                                           parent_keys=["snippet",
+        
+        self.id = DeserField()
+        self.title = DeserField(parent_keys=['snippet'])
+        self.thumb = DeserField(name="url", parent_keys=["snippet",
                                                         "thumbnails",
                                                         "maxres"])
 
-        self.snippet = DeserializeObjectField(kind=Snippet)
-        self.init_deserialize_json()
+        self.snippet = DeserObjectField(kind=Snippet)
 
 
-class Snippet(JSONBase):
+class Snippet(SchemaJSON, BaseJSON):
     def __init__(self):
-        super().__init__()
-        self.title = DeserializeField()
-
-        self.init_deserialize_json()
+        
+        self.title = DeserField()
 
 
-class FruitBasketNotCallable(JSONBase):
+
+class FruitBasketNotCallable(SchemaJSON, BaseJSON):
     def __init__(self):
-        super().__init__()
-        self.name = DeserializeField(kind="not a valid kind")
-        self.init_deserialize_json()
+        
+        self.name = DeserField(kind="not a valid kind")
 
 
 def test_deserialize_raw_json():
@@ -145,4 +138,4 @@ def test_deserialize_negative():
 
 
 def test_deserialize_str():
-    str(DeserializeField())
+    str(DeserField())

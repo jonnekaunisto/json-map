@@ -13,24 +13,19 @@ class SchemaJSON:
         if type(value) is DeserField or\
                 type(value) is DeserObjectField:
 
-           # if self.__dict__.get("_field_dict", None) is None:
-            #    self._field_dict = {}
-
             if value.name is None:
-                value.name = value.name_conv(value)
+                value.name = value.name_conv(name)
 
-                if name in self._field_dict:
-                    self._field_dict[name].deserialize = value
-                else:
-                    self._field_dict[name] = CompositeField(
-                        deserialize=value)
-                self.__dict__[name] = None
+            if name in self._field_dict:
+                self._field_dict[name].deserialize = value
+            else:
+                self._field_dict[name] = CompositeField(
+                    deserialize=value)
+
+            self.__dict__[name] = None
 
         elif type(value) is SerField or\
                 type(value) is SerObjectField:
-
-           # if self.__dict__.get("_field_dict", None) is None:
-           #     self._field_dict = {}
 
             # If name is not specified use the name of the variable
             if value.name is None:
@@ -147,7 +142,7 @@ class BaseJSON():
                 else:
                     self.__dict__[var_name] = deserialize.kind(
                         sub_data_dict[deserialize.name])
-            elif type(deserialize) is DeSerObjectField:
+            elif type(deserialize) is DeserObjectField:
                 if deserialize.repeated:
                     self.__dict__[var_name] = []
                     for value in sub_data_dict[deserialize.name]:

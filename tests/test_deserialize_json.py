@@ -32,23 +32,16 @@ def underscore_to_camel(word):
     return word
 
 
-class FruitBasket(SchemaJSON, BaseJSON):
+class FruitBasketSchema(SchemaJSON, BaseJSON):
     def __init__(self):
-        
         self.name = DeserField()
         self.fruit = DeserField()
         self.iD = DeserField(name_conv=lambda x: 'ref', kind=int)
         self.private = ''
-        # self.created = DeserField(kind=Time)
-        
-        self.int_string = DeserField(name_conv=underscore_to_camel,
-                                           kind=int)
-        '''
-        self.intString = DeserField(kind=int)
-        '''
+
+        self.int_string = DeserField(name_conv=underscore_to_camel, kind=int)
         self.optionalString = DeserField(kind=str, optional=True)
         self.items = DeserField(repeated=True)
-
         self.name = SerField()
         self.fruit = SerField()
         self.iD = SerField(name='ref', kind=int)
@@ -57,36 +50,39 @@ class FruitBasket(SchemaJSON, BaseJSON):
         self.int_string = SerField(kind=int)
 
 
+fruit_basket_schema = FruitBasketSchema()
+
+
+class FruitBasket(BaseJSON):
+    def __init__(self):
+        self.set_schema_json(fruit_basket_schema)
+
+
 class VideoListResponse(SchemaJSON, BaseJSON):
     def __init__(self):
-        
-
         self.videos = DeserObjectField(name="items", repeated=True,
-                                             kind=YouTubeVideo)
+                                       kind=YouTubeVideo)
 
 
 class YouTubeVideo(SchemaJSON, BaseJSON):
     def __init__(self):
-        
         self.id = DeserField()
         self.title = DeserField(parent_keys=['snippet'])
         self.thumb = DeserField(name="url", parent_keys=["snippet",
-                                                        "thumbnails",
-                                                        "maxres"])
+                                                         "thumbnails",
+                                                         "maxres"])
 
         self.snippet = DeserObjectField(kind=Snippet)
 
 
 class Snippet(SchemaJSON, BaseJSON):
     def __init__(self):
-        
-        self.title = DeserField()
 
+        self.title = DeserField()
 
 
 class FruitBasketNotCallable(SchemaJSON, BaseJSON):
     def __init__(self):
-        
         self.name = DeserField(kind="not a valid kind")
 
 

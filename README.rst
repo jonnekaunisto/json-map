@@ -19,28 +19,36 @@ Class mappings for serializing and deserializing in JSON
 
 .. code:: python
 
-   from pyser import JSONBase, SerializeField, DeserializeField
-   class FruitBasket(JSONBase):
+   from pyser import BaseJSON, SchemaJSON SerField, DeserField
+   class FruitBasket(BaseJSON, SchemaJSON):
         def __init__(self):
             super().__init__()
-            self.name =           DeserializeField()
-            self.fruit =          DeserializeField()
-            self.iD =             DeserializeField(name='ref', kind=int)
-            self.intString =      DeserializeField(kind=int)
-            self.optionalString = DeserializeField(kind=str, optional=True)
-            self.items =          DeserializeField(repeated=True)
+            self.name =           DeserField()
+            self.fruit =          DeserField()
+            self.iD =             DeserField(name='ref', kind=int)
+            self.intString =      DeserField(kind=int)
+            self.optionalString = DeserField(kind=str, optional=True)
+            self.items =          DeserField(repeated=True)
             self.init_deserialize_json()
 
-            self.name =           SerializeField()
-            self.fruit =          SerializeField()
-            self.iD =             SerializeField(name='ref', kind=int)
-            self.intString =      SerializeField(kind=int)
-            self.optionalString = SerializeField(optional=True)
-            self.items =          SerializeField(repeated=True)
-            self.register =       SerializeField(parent_keys=['checkout'], kind=int)
-            self.amount =         SerializeField(parent_keys=['checkout'], kind=int)
+            self.name =           SerField()
+            self.fruit =          SerField()
+            self.iD =             SerField(name='ref', kind=int)
+            self.intString =      SerField(kind=int)
+            self.optionalString = SerField(optional=True)
+            self.items =          SerField(repeated=True)
+            self.register =       SerField(parent_keys=['checkout'], kind=int)
+            self.amount =         SerField(parent_keys=['checkout'], kind=int)
             self.init_serialize_json()
-            
+
+
+    fruit_basket_schema = FruitBasketSchema()
+
+
+    class FruitBasket(BaseJSON):
+        def __init__(self):
+            self.set_schema_json(fruit_basket_schema)
+
             self.name =           'basket'
             self.fruit =          'banana'
             self.iD =             '123'

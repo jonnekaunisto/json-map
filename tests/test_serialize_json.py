@@ -82,7 +82,6 @@ class Snippet(SchemaJSON, BaseJSON):
         self.title = SerField()
 
 
-
 def test_serialize():
     basket = FruitBasket()
     assert basket.name == 'basket'

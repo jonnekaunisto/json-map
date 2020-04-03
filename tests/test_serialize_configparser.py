@@ -16,29 +16,22 @@ fruit_basket_test_file = test_data_path + 'fruitBasket.ini'
 
 class BasketDetails(ConfigSectionBase):
     def __init__(self):
-        super().__init__()
-
         self.name = DeserializeConfigOption()
         self.randomOptional = DeserializeConfigOption(optional=True)
-        self.init_deserialize_config()
 
         self.name = SerializeConfigOption()
         self.iD = SerializeConfigOption(name='ref')
         self.intString = SerializeConfigOption()
-        self.init_serialize_config()
 
 
 class FruitBasket(ConfigBase):
     def __init__(self):
-        super().__init__()
-
         self.fruit = DeserializeConfigOption(section='Items')
         self.iD = DeserializeConfigOption(name='ref', section='BasketDetails')
         self.intString = DeserializeConfigOption(section='BasketDetails',
                                                  kind=int)
 
-        self.details = DeserializeConfigSection(section='BasketDetails')
-        self.init_deserialize_config()
+        self.details = DeserializeConfigSection(kind=BasketDetails, section='BasketDetails')
 
         self.name = SerializeConfigOption(section='BasketDetails')
         self.fruit = SerializeConfigOption(section='Items')
@@ -47,14 +40,8 @@ class FruitBasket(ConfigBase):
         self.intString = SerializeConfigOption(section='BasketDetails')
         self.optionalString = SerializeConfigOption(optional=True)
 
-        self.init_serialize_config()
-
         self.optionalString = None
         self.details = BasketDetails()
-
-        self.init_section_values()
-
-        self.private = ''
 
 
 def test_serialize_config():
@@ -100,9 +87,9 @@ def test_serialize_config_str():
     serialize = SerializeConfigOption()
     deserialize = DeserializeConfigOption()
 
-    str(CompositeConfigOption(serialize=serialize, deserialize=deserialize)) 
+    str(CompositeConfigOption(serialize=serialize, deserialize=deserialize))
 
-    serialize = SerializeConfigSection(section="something")
-    deserialize = SerializeConfigSection(section="something")
+    serialize = SerializeConfigSection(kind=object, section="something")
+    deserialize = SerializeConfigSection(kind=object, section="something")
 
-    str(CompositeConfigSection(serialize=serialize, deserialize=deserialize))   
+    str(CompositeConfigSection(serialize=serialize, deserialize=deserialize))  

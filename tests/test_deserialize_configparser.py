@@ -15,22 +15,16 @@ fruit_basket_missing_section = test_data_path + 'fruitBasketMissingSection.ini'
 
 class BasketDetails(ConfigSectionBase):
     def __init__(self):
-        super().__init__()
-
         self.name = SerializeConfigOption()
         self.randomOptional = SerializeConfigOption(optional=True)
-        self.init_serialize_config()
 
         self.name = DeserializeConfigOption()
         self.iD = DeserializeConfigOption(name='ref')
         self.intString = DeserializeConfigOption(kind=int)
-        self.init_deserialize_config()
 
 
 class FruitBasket(ConfigBase):
     def __init__(self):
-        super().__init__()
-
         self.fruit = SerializeConfigOption(section='Items')
         self.iD = SerializeConfigOption(name='ref', section='BasketDetails')
         self.private = ''  # alternatively self.private = Field(private=True)
@@ -38,9 +32,7 @@ class FruitBasket(ConfigBase):
         self.intString = SerializeConfigOption(section='BasketDetails')
         self.optionalString = SerializeConfigOption(optional=True)
 
-        self.details = SerializeConfigSection('BasketDetails')
-
-        self.init_serialize_config()
+        self.details = SerializeConfigSection(kind=BasketDetails, section='BasketDetails')
 
         self.name = DeserializeConfigOption(section='BasketDetails')
 
@@ -49,17 +41,11 @@ class FruitBasket(ConfigBase):
         self.intString = DeserializeConfigOption(section='BasketDetails',
                                                  kind=int)
 
-        self.details = DeserializeConfigSection(section='BasketDetails')
-        self.additionalDetails = DeserializeConfigSection(section='BasketDetails')
-
-        self.init_deserialize_config()
+        self.details = DeserializeConfigSection(kind=BasketDetails, section='BasketDetails')
+        self.additionalDetails = DeserializeConfigSection(kind=BasketDetails, section='BasketDetails')
 
         self.private = ''
         self.optionalString = None
-        self.details = BasketDetails()
-        self.additionalDetails = BasketDetails()
-
-        self.init_section_values()
 
 
 def test_deserialize_config():

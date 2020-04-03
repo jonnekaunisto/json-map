@@ -1,10 +1,7 @@
 import configparser
 
 
-class ConfigBaseParent():
-    def __init__(self):
-        self._config_key_dict = {}
-
+class ConfigBaseParent(object):
     # TODO: add checks for if filename is valid
     def to_config(self, filename=None):
         config = configparser.ConfigParser()
@@ -42,7 +39,8 @@ class ConfigBaseParent():
                 if config.has_option(deserialize.section, deserialize.name):
                     self.__dict__[field_name] = field.deserialize.kind(
                         config.get(deserialize.section, deserialize.name))
-                elif not config.has_section(deserialize.section) and not deserialize.optional:
+                elif not config.has_section(deserialize.section) and not\
+                        deserialize.optional:
                     raise Exception('"{}" section not in config'.format(
                         deserialize.section))
                 elif not deserialize.optional:
@@ -55,34 +53,35 @@ class ConfigBaseParent():
 class ConfigSectionBase(ConfigBaseParent):
     '''ConfigSectionBase
     '''
-    def __init__(self):
-        super().__init__()
+    def __new__(cls):
+        obj = super(ConfigSectionBase, cls).__new__(cls)
+        obj._config_key_dict = {}
+        return obj
 
-    def init_deserialize_config(self):
-        for field_name, field in self.__dict__.items():
-            if type(field) is DeserializeConfigOption:
-                if field.name is None:
-                    field.name = field_name
+    def __setattr__(self, name, value):
+        if type(value) is DeserializeConfigOption:
+            if value.name is None:
+                value.name = name
 
-                if field_name in self._config_key_dict:
-                    self._config_key_dict[field_name].deserialize = field
-                else:
-                    self._config_key_dict[field_name] = CompositeConfigOption(
-                        deserialize=field)
-                self.__dict__[field_name] = None
+            if name in self._config_key_dict:
+                self._config_key_dict[name].deserialize = value
+            else:
+                self._config_key_dict[name] = CompositeConfigOption(
+                    deserialize=value)
+            self.__dict__[name] = None
 
-    def init_serialize_config(self):
-        for field_name, field in self.__dict__.items():
-            if type(field) is SerializeConfigOption:
-                if field.name is None:
-                    field.name = field_name
+        elif type(value) is SerializeConfigOption:
+            if value.name is None:
+                value.name = name
 
-                if field_name in self._config_key_dict:
-                    self._config_key_dict[field_name].serialize = field
-                else:
-                    self._config_key_dict[field_name] = CompositeConfigOption(
-                        serialize=field)
-                self.__dict__[field_name] = None
+            if name in self._config_key_dict:
+                self._config_key_dict[name].serialize = value
+            else:
+                self._config_key_dict[name] = CompositeConfigOption(
+                    serialize=value)
+            self.__dict__[name] = None
+        else:
+            object.__setattr__(self, name, value)
 
     def __set_serialize_section__(self, section):
         for field in self._config_key_dict.values():
@@ -96,54 +95,53 @@ class ConfigSectionBase(ConfigBaseParent):
 
 
 class ConfigBase(ConfigBaseParent):
-    def __init__(self):
-        super().__init__()
+    def __new__(cls):
+        obj = super(ConfigBase, cls).__new__(cls)
+        obj._config_key_dict = {}
+        return obj
 
-    def init_deserialize_config(self):
-        for field_name, field in self.__dict__.items():
-            if type(field) is DeserializeConfigOption:
-                if field.name is None:
-                    field.name = field_name
-                if field_name in self._config_key_dict:
-                    self._config_key_dict[field_name].deserialize = field
-                else:
-                    self._config_key_dict[field_name] = CompositeConfigOption(
-                        deserialize=field)
-                self.__dict__[field_name] = None
-            elif type(field) is DeserializeConfigSection:
-                if field_name in self._config_key_dict:
-                    self._config_key_dict[field_name].deserialize = field
-                else:
-                    self._config_key_dict[field_name] = CompositeConfigSection(
-                        deserialize=field)
+    def __setattr__(self, name, value):
+        if type(value) is DeserializeConfigOption:
+            if value.name is None:
+                value.name = name
+            if name in self._config_key_dict:
+                self._config_key_dict[name].deserialize = value
+            else:
+                self._config_key_dict[name] = CompositeConfigOption(
+                    deserialize=value)
+            self.__dict__[name] = None
+        elif type(value) is DeserializeConfigSection:
+            obj = value.kind()
+            obj.__set_deserialize_section__(value.section)
+            if name in self._config_key_dict:
+                self._config_key_dict[name].deserialize = value
+            else:
+                self._config_key_dict[name] = CompositeConfigSection(
+                    deserialize=value)
+            self.__dict__[name] = obj
 
-    def init_serialize_config(self):
-        for field_name, field in self.__dict__.items():
-            if type(field) is SerializeConfigOption:
-                if field.name is None:
-                    field.name = field_name
+        elif type(value) is SerializeConfigOption:
+            if value.name is None:
+                value.name = name
 
-                if field_name in self._config_key_dict:
-                    self._config_key_dict[field_name].serialize = field
-                else:
-                    self._config_key_dict[field_name] = CompositeConfigOption(
-                        serialize=field)
-                self.__dict__[field_name] = None
-            elif type(field) is SerializeConfigSection:
-                if field_name in self._config_key_dict:
-                    self._config_key_dict[field_name].serialize = field
-                else:
-                    self._config_key_dict[field_name] = CompositeConfigSection(
-                        serialize=field)
+            if name in self._config_key_dict:
+                self._config_key_dict[name].serialize = value
+            else:
+                self._config_key_dict[name] = CompositeConfigOption(
+                    serialize=value)
+            self.__dict__[name] = None
 
-    def init_section_values(self):
-        for field_name, field in self._config_key_dict.items():
-            if type(field) is CompositeConfigSection:
-                target = self.__dict__[field_name]
-                if field.serialize is not None:
-                    target.__set_serialize_section__(field.serialize.section)
-                if field.deserialize is not None:
-                    target.__set_deserialize_section__(field.deserialize.section)
+        elif type(value) is SerializeConfigSection:
+            obj = value.kind()
+            obj.__set_serialize_section__(value.section)
+            if name in self._config_key_dict:
+                self._config_key_dict[name].serialize = value
+            else:
+                self._config_key_dict[name] = CompositeConfigSection(
+                    serialize=value)
+            self.__dict__[name] = obj
+        else:
+            object.__setattr__(self, name, value)
 
 
 class CompositeConfigOption():
@@ -205,12 +203,14 @@ class ConfigSection():
 
 
 class SerializeConfigSection(ConfigSection):
-    def __init__(self, section, optional=False):
+    def __init__(self, kind, section, optional=False):
+        self.kind = kind
         self.section = section
         self.optional = optional
 
 
 class DeserializeConfigSection(ConfigSection):
-    def __init__(self, section, optional=False):
+    def __init__(self, kind, section, optional=False):
+        self.kind = kind
         self.section = section
         self.optional = optional

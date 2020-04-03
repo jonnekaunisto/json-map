@@ -2,45 +2,51 @@ from collections import defaultdict
 import json
 
 
-class JSONBase():
-    def __init__(self):
-        self._field_dict = {}
+class SchemaJSON:
+    def __new__(cls):
+        obj = super(SchemaJSON, cls).__new__(cls)
+        obj._field_dict = {}
+        return obj
 
-    def init_serialize_json(self):
-        '''Initializes all the variables that have to do with serializing
-        '''
-        for var_name, field in self.__dict__.items():
-            if type(field) is SerializeField or\
-               type(field) is SerializeObjectField:
+    def __setattr__(self, name, value):
 
-                # If name is not specified use the name of the variable
-                if field.name is None:
-                    field.name = field.name_conv(var_name)
+        if type(value) is DeserField or\
+                type(value) is DeserObjectField:
 
-                if var_name in self._field_dict:
-                    self._field_dict[var_name].serialize = field
-                else:
-                    self._field_dict[var_name] = CompositeField(
-                        serialize=field)
+            if value.name is None:
+                value.name = value.name_conv(name)
 
-                self.__dict__[var_name] = None
+            if name in self._field_dict:
+                self._field_dict[name].deserialize = value
+            else:
+                self._field_dict[name] = CompositeField(
+                    deserialize=value)
 
-    def init_deserialize_json(self):
-        '''Initializes all the variables that have to do with deserializing
-        '''
-        for var_name, field in self.__dict__.items():
-            if type(field) is DeserializeField or\
-               type(field) is DeserializeObjectField:
+            self.__dict__[name] = None
 
-                if field.name is None:
-                    field.name = field.name_conv(var_name)
+        elif type(value) is SerField or\
+                type(value) is SerObjectField:
 
-                if var_name in self._field_dict:
-                    self._field_dict[var_name].deserialize = field
-                else:
-                    self._field_dict[var_name] = CompositeField(
-                        deserialize=field)
-                self.__dict__[var_name] = None
+            # If name is not specified use the name of the variable
+            if value.name is None:
+                value.name = value.name_conv(name)
+
+            if name in self._field_dict:
+                self._field_dict[name].serialize = value
+            else:
+                self._field_dict[name] = CompositeField(
+                    serialize=value)
+
+            self.__dict__[name] = None
+
+        else:
+            object.__setattr__(self, name, value)
+
+
+class BaseJSON():
+
+    def set_schema_json(self, schema):
+        self._field_dict = schema._field_dict
 
     def to_json(self, filename=None):
         '''Serializes the object into a json file.
@@ -77,7 +83,7 @@ class JSONBase():
                     sub_data_dict[key] = {}
                     sub_data_dict = sub_data_dict[key]
 
-            if type(serialize) is SerializeField:
+            if type(serialize) is SerField:
                 kind = serialize.kind
                 if serialize.repeated:
                     sub_data_dict[serialize.name] = []
@@ -87,7 +93,7 @@ class JSONBase():
                     json_value = kind(self.__dict__.get(var_name,
                                                         serialize.default))
                     sub_data_dict[serialize.name] = json_value
-            elif type(serialize) is SerializeObjectField:
+            elif type(serialize) is SerObjectField:
                 if serialize.repeated:
                     sub_data_dict[serialize.name] = []
                     for obj in self.__dict__[var_name]:
@@ -128,7 +134,7 @@ class JSONBase():
                 raise Exception('{} field not found in the json'.format(
                                 deserialize.name))
 
-            if type(deserialize) is DeserializeField:
+            if type(deserialize) is DeserField:
                 if deserialize.repeated:
                     self.__dict__[var_name] = []
                     for value in sub_data_dict[deserialize.name]:
@@ -136,7 +142,7 @@ class JSONBase():
                 else:
                     self.__dict__[var_name] = deserialize.kind(
                         sub_data_dict[deserialize.name])
-            elif type(deserialize) is DeserializeObjectField:
+            elif type(deserialize) is DeserObjectField:
                 if deserialize.repeated:
                     self.__dict__[var_name] = []
                     for value in sub_data_dict[deserialize.name]:
@@ -163,8 +169,8 @@ class Field():
     __repr__ = __str__
 
 
-class DeserializeField(Field):
-    '''DeserializeField
+class DeserField(Field):
+    '''DeserField
     name:
         name of the field that should be deserialized from, default is the
         name of the variable
@@ -190,8 +196,8 @@ class DeserializeField(Field):
             raise Exception("Kind needs to be callable")
 
 
-class SerializeField(Field):
-    '''SerializeField
+class SerField(Field):
+    '''SerField
     name:
         name of the field that should serialize to, defaults to the variable
         name
@@ -229,8 +235,8 @@ class ObjectField():
     __repr__ = __str__
 
 
-class SerializeObjectField(ObjectField):
-    '''SerializeObjectField
+class SerObjectField(ObjectField):
+    '''SerObjectField
     name:
         name of the field that should serialize to, defaults to the variable
         name
@@ -260,8 +266,8 @@ class SerializeObjectField(ObjectField):
             raise Exception("parent keys has to be of type list")
 
 
-class DeserializeObjectField(ObjectField):
-    '''DeserializeObjectField
+class DeserObjectField(ObjectField):
+    '''DeserObjectField
 
     name
         The name of the field that should contain this object.

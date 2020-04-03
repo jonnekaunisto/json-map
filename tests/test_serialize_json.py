@@ -3,8 +3,8 @@ import os
 import sys
 import json
 
-from pyser import (JSONBase, SerializeField, DeserializeField, 
-                   SerializeObjectField)
+from pyser import (BaseJSON, SchemaJSON, SerField, DeserField, 
+                   SerObjectField)
 
 
 currPath = os.path.dirname(os.path.abspath(__file__))
@@ -16,29 +16,26 @@ with open(basket_complex_json, 'r') as f:
     basket_json = json.dumps(basket_dict)
 
 
-class FruitBasket(JSONBase):
+class FruitBasket(SchemaJSON, BaseJSON):
     def __init__(self):
         super().__init__()
-        self.name = SerializeField()
-        self.fruit = SerializeField()
-        self.iD = SerializeField(name="ref", kind=int)
+        self.name = SerField()
+        self.fruit = SerField()
+        self.iD = SerField(name="ref", kind=int)
         self.private = ""  # alternatively self.private = Field(private=True)
         # self.created = Field(kind=Time)
-        self.intString = SerializeField(kind=int)
-        self.optionalString = SerializeField(optional=True)
-        self.items = SerializeField(repeated=True)
-        self.register = SerializeField(parent_keys=["checkout"], kind=int)
-        self.amount = SerializeField(parent_keys=["checkout"], kind=int)
+        self.intString = SerField(kind=int)
+        self.optionalString = SerField(optional=True)
+        self.items = SerField(repeated=True)
+        self.register = SerField(parent_keys=["checkout"], kind=int)
+        self.amount = SerField(parent_keys=["checkout"], kind=int)
 
-        self.init_serialize_json()
-
-        self.name = DeserializeField()
-        self.fruit = DeserializeField()
-        self.iD = DeserializeField(name="ref", kind=int)
+        self.name = DeserField()
+        self.fruit = DeserField()
+        self.iD = DeserField(name="ref", kind=int)
         self.private = ""
-        # self.created = DeserializeField(kind=Time)
-        self.intString = DeserializeField(kind=int)
-        self.init_deserialize_json()
+        # self.created = DeserField(kind=Time)
+        self.intString = DeserField(kind=int)
 
         self.name = "basket"
         self.optionalString = None
@@ -51,44 +48,38 @@ class FruitBasket(JSONBase):
         self.amount = "10"
 
 
-class FruitBasketNotCallable(JSONBase):
+class FruitBasketNotCallable(SchemaJSON, BaseJSON):
     def __init__(self):
         super().__init__()
-        self.name = SerializeField(kind="not a valid kind")
-        self.init_serialize_json()
+        self.name = SerField(kind="not a valid kind")
 
 
-class FruitBasketOverlappingKeys(JSONBase):
+class FruitBasketOverlappingKeys(SchemaJSON, BaseJSON):
     def __init__(self):
         super().__init__()
-        self.name = SerializeField()
-        self.thingy = SerializeField(parent_keys=['name'])
-        self.init_serialize_json()
+        self.name = SerField()
+        self.thingy = SerField(parent_keys=['name'])
 
 
-class VideoListResponse(JSONBase):
+class VideoListResponse(SchemaJSON, BaseJSON):
     def __init__(self):
         super().__init__()
-        self.videos = SerializeObjectField(name="items", repeated=True)
-        self.init_serialize_json()
+        self.videos = SerObjectField(name="items", repeated=True)
 
         self.videos = []
 
 
-class YouTubeVideo(JSONBase):
+class YouTubeVideo(SchemaJSON, BaseJSON):
     def __init__(self):
         super().__init__()
-        self.id = SerializeField()
-        self.snippet = SerializeObjectField()
-        self.init_serialize_json()
+        self.id = SerField()
+        self.snippet = SerObjectField()
 
 
-class Snippet(JSONBase):
+class Snippet(SchemaJSON, BaseJSON):
     def __init__(self):
         super().__init__()
-        self.title = SerializeField()
-
-        self.init_serialize_json()
+        self.title = SerField()
 
 
 def test_serialize():
@@ -147,5 +138,5 @@ def test_serialize_negative():
 
 
 def test_serialize_str():
-    str(SerializeField())
-    str(SerializeObjectField())
+    str(SerField())
+    str(SerObjectField())

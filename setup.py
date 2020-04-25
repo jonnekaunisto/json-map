@@ -6,7 +6,7 @@ from setuptools.command.test import test as TestCommand
 
 MAJOR = 0
 MINOR = 1
-MICRO = 3
+MICRO = 4
 VERSION = "%d.%d.%d" % (MAJOR, MINOR, MICRO)
 
 

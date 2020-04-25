@@ -2,43 +2,48 @@ import pytest
 import os
 import configparser
 
-from pyser import (ConfigSectionBase, ConfigBase,
-                   SerializeConfigOption, DeserializeConfigOption,
-                   SerializeConfigSection, DeserializeConfigSection)
+from pyser import (
+    ConfigSectionBase,
+    ConfigBase,
+    SerConfigOption,
+    DeserConfigOption,
+    SerConfigSection,
+    DeserConfigSection,
+)
 
-from pyser.configparser_resources import (CompositeConfigOption, 
-                                          CompositeConfigSection)
+from pyser.configparser import CompositeConfigOption, CompositeConfigSection
 
 currPath = os.path.dirname(os.path.abspath(__file__))
-test_data_path = currPath + os.sep + 'test_data' + os.sep
-fruit_basket_test_file = test_data_path + 'fruitBasket.ini'
+test_data_path = currPath + os.sep + "test_data" + os.sep
+fruit_basket_test_file = test_data_path + "fruitBasket.ini"
 
 
 class BasketDetails(ConfigSectionBase):
     def __init__(self):
-        self.name = DeserializeConfigOption()
-        self.randomOptional = DeserializeConfigOption(optional=True)
+        self.name = DeserConfigOption()
+        self.randomOptional = DeserConfigOption(optional=True)
 
-        self.name = SerializeConfigOption()
-        self.iD = SerializeConfigOption(name='ref')
-        self.intString = SerializeConfigOption()
+        self.name = SerConfigOption()
+        self.iD = SerConfigOption(name="ref")
+        self.intString = SerConfigOption()
 
 
 class FruitBasket(ConfigBase):
     def __init__(self):
-        self.fruit = DeserializeConfigOption(section='Items')
-        self.iD = DeserializeConfigOption(name='ref', section='BasketDetails')
-        self.intString = DeserializeConfigOption(section='BasketDetails',
-                                                 kind=int)
+        self.fruit = DeserConfigOption(section="Items")
+        self.iD = DeserConfigOption(name="ref", section="BasketDetails")
+        self.intString = DeserConfigOption(section="BasketDetails", kind=int)
 
-        self.details = DeserializeConfigSection(kind=BasketDetails, section='BasketDetails')
+        self.details = DeserConfigSection(
+            kind=BasketDetails, section="BasketDetails"
+        )
 
-        self.name = SerializeConfigOption(section='BasketDetails')
-        self.fruit = SerializeConfigOption(section='Items')
-        self.iD = SerializeConfigOption(name='ref', section='BasketDetails')
+        self.name = SerConfigOption(section="BasketDetails")
+        self.fruit = SerConfigOption(section="Items")
+        self.iD = SerConfigOption(name="ref", section="BasketDetails")
         # self.created = Field(kind=Time)
-        self.intString = SerializeConfigOption(section='BasketDetails')
-        self.optionalString = SerializeConfigOption(optional=True)
+        self.intString = SerConfigOption(section="BasketDetails")
+        self.optionalString = SerConfigOption(optional=True)
 
         self.optionalString = None
         self.details = BasketDetails()
@@ -47,49 +52,49 @@ class FruitBasket(ConfigBase):
 def test_serialize_config():
     basket = FruitBasket()
 
-    basket.name = 'basket'
+    basket.name = "basket"
     basket.iD = 1
     basket.intString = 12345
-    basket.fruit = 'banana'
+    basket.fruit = "banana"
 
     config = basket.to_config()
 
-    assert config['BasketDetails']['name'] == 'basket'
-    assert config['BasketDetails']['ref'] == '1'
-    assert config['BasketDetails']['intString'] == '12345'
-    assert config['Items']['fruit'] == 'banana'
+    assert config["BasketDetails"]["name"] == "basket"
+    assert config["BasketDetails"]["ref"] == "1"
+    assert config["BasketDetails"]["intString"] == "12345"
+    assert config["Items"]["fruit"] == "banana"
 
 
 def test_serialize_config_file():
     temp_file = "temp.ini"
     basket = FruitBasket()
-    basket.name = 'basket'
+    basket.name = "basket"
     basket.iD = 1
     basket.intString = 12345
-    basket.fruit = 'banana'
+    basket.fruit = "banana"
 
     basket.to_config(filename=temp_file)
 
     config = configparser.RawConfigParser()
     config.read(temp_file)
 
-    assert config['BasketDetails']['name'] == 'basket'
-    assert config['BasketDetails']['ref'] == '1'
-    assert config['BasketDetails']['intString'] == '12345'
-    assert config['Items']['fruit'] == 'banana'
+    assert config["BasketDetails"]["name"] == "basket"
+    assert config["BasketDetails"]["ref"] == "1"
+    assert config["BasketDetails"]["intString"] == "12345"
+    assert config["Items"]["fruit"] == "banana"
 
-    with open(temp_file, 'r') as f:
+    with open(temp_file, "r") as f:
         raw_json = f.read()
     os.remove(temp_file)
 
 
 def test_serialize_config_str():
-    serialize = SerializeConfigOption()
-    deserialize = DeserializeConfigOption()
+    serialize = SerConfigOption()
+    deserialize = DeserConfigOption()
 
     str(CompositeConfigOption(serialize=serialize, deserialize=deserialize))
 
-    serialize = SerializeConfigSection(kind=object, section="something")
-    deserialize = SerializeConfigSection(kind=object, section="something")
+    serialize = SerConfigSection(kind=object, section="something")
+    deserialize = SerConfigSection(kind=object, section="something")
 
-    str(CompositeConfigSection(serialize=serialize, deserialize=deserialize))  
+    str(CompositeConfigSection(serialize=serialize, deserialize=deserialize))

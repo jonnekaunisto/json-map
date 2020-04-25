@@ -22,24 +22,21 @@ Class mappings for serializing and deserializing in JSON
    from pyser import BaseJSON, SchemaJSON SerField, DeserField
    class FruitBasket(BaseJSON, SchemaJSON):
         def __init__(self):
-            super().__init__()
-            self.name =           DeserField()
-            self.fruit =          DeserField()
-            self.iD =             DeserField(name='ref', kind=int)
-            self.intString =      DeserField(kind=int)
+            self.name           = DeserField()
+            self.fruit          = DeserField()
+            self.iD             = DeserField(name='ref', kind=int)
+            self.intString      = DeserField(kind=int)
             self.optionalString = DeserField(kind=str, optional=True)
-            self.items =          DeserField(repeated=True)
-            self.init_deserialize_json()
+            self.items          = DeserField(repeated=True)
 
-            self.name =           SerField()
-            self.fruit =          SerField()
-            self.iD =             SerField(name='ref', kind=int)
-            self.intString =      SerField(kind=int)
+            self.name           = SerField()
+            self.fruit          = SerField()
+            self.iD             = SerField(name='ref', kind=int)
+            self.intString      = SerField(kind=int)
             self.optionalString = SerField(optional=True)
-            self.items =          SerField(repeated=True)
-            self.register =       SerField(parent_keys=['checkout'], kind=int)
-            self.amount =         SerField(parent_keys=['checkout'], kind=int)
-            self.init_serialize_json()
+            self.items          = SerField(repeated=True)
+            self.register       = SerField(parent_keys=['checkout'], kind=int)
+            self.amount         = SerField(parent_keys=['checkout'], kind=int)
 
 
     fruit_basket_schema = FruitBasketSchema()
@@ -49,14 +46,14 @@ Class mappings for serializing and deserializing in JSON
         def __init__(self):
             self.set_schema_json(fruit_basket_schema)
 
-            self.name =           'basket'
-            self.fruit =          'banana'
-            self.iD =             '123'
-            self.intString =      '12345'
+            self.name           = 'basket'
+            self.fruit          = 'banana'
+            self.iD             = '123'
+            self.intString      = '12345'
             self.optionalString = None
-            self.items =          ['paper', 'rock']
-            self.register =       '1'
-            self.amount =         '10'
+            self.items          = ['paper', 'rock']
+            self.register       = '1'
+            self.amount         = '10'
 
 
 Serializing to a JSON file

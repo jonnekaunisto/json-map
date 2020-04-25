@@ -143,15 +143,15 @@ Contribute
 1. Fork the repository from Github
 2. Clone your fork 
 
-    .. code:: bash 
+.. code:: bash 
 
-        git clone https://github.com/yourname/pyser.git
+    git clone https://github.com/yourname/pyser.git
 
 3. Add the main repository as a remote
 
-    .. code:: bash
+.. code:: bash
 
-        git remote add upstream https://github.com/jonnekaunisto/pyser.git
+    git remote add upstream https://github.com/jonnekaunisto/pyser.git
 
 4. Create a pull request and follow the guidelines
 

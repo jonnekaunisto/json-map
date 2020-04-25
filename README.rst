@@ -1,5 +1,7 @@
 Pyser
-======
+=====
+
+
 .. image:: https://badge.fury.io/py/pyser.svg
     :target: https://badge.fury.io/py/pyser
     :alt: PySer page on the Python Package Index
@@ -19,8 +21,8 @@ Class mappings for serializing and deserializing in JSON
 
 .. code:: python
 
-   from pyser import BaseJSON, SchemaJSON SerField, DeserField
-   class FruitBasket(BaseJSON, SchemaJSON):
+    from pyser import BaseJSON, SchemaJSON, SerField, DeserField
+    class FruitBasket(BaseJSON, SchemaJSON):
         def __init__(self):
             self.name           = DeserField()
             self.fruit          = DeserField()
@@ -96,13 +98,13 @@ Installation
 
 .. code:: bash
 
-    $ (sudo) python setup.py install
+    python setup.py install
 
 **Installation with pip:** make sure that you have ``pip`` installed, type this in a terminal:
 
 .. code:: bash
 
-    $ (sudo) pip install pyser
+    pip install pyser
 
 Documentation
 -------------
@@ -111,7 +113,7 @@ Running `build_docs` has additional dependencies that require installation.
 
 .. code:: bash
 
-    $ (sudo) pip install pyser[docs]
+    pip install pyser[docs]
 
 The documentation can be generated and viewed via:
 
@@ -137,18 +139,19 @@ Run the python command
 
 Contribute
 ----------
+
 1. Fork the repository from Github
 2. Clone your fork 
 
-.. code:: bash 
+    .. code:: bash 
 
-   git clone https://github.com/yourname/pyser.git
+        git clone https://github.com/yourname/pyser.git
 
 3. Add the main repository as a remote
 
-.. code:: bash
+    .. code:: bash
 
-    git remote add upstream https://github.com/jonnekaunisto/pyser.git
+        git remote add upstream https://github.com/jonnekaunisto/pyser.git
 
 4. Create a pull request and follow the guidelines
 

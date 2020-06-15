@@ -3,7 +3,7 @@ import os
 import sys
 import json
 
-from pyser import BaseJSON, SchemaJSON, SerField, DeserField, SerObjectField
+from pyser import SchemaJSON, SerField, DeserField, SerObjectField
 
 
 currPath = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +15,23 @@ with open(basket_complex_json, "r") as f:
     basket_json = json.dumps(basket_dict)
 
 
-class FruitBasket(SchemaJSON, BaseJSON):
+class General():
+    pass
+
+class FruitBasket:
+    def __init__(self):
+        self.name = "basket"
+        self.optionalString = None
+
+        self.fruit = "banana"
+        self.iD = "123"
+        self.intString = "12345"
+        self.items = ["paper", "rock"]
+        self.register = "1"
+        self.amount = "10"
+
+
+class FruitBasketSchema(SchemaJSON):
     def __init__(self):
         super().__init__()
         self.name = SerField()
@@ -32,59 +48,48 @@ class FruitBasket(SchemaJSON, BaseJSON):
         self.name = DeserField()
         self.fruit = DeserField()
         self.iD = DeserField(name="ref", kind=int)
-        self.private = ""
         # self.created = DeserField(kind=Time)
         self.intString = DeserField(kind=int)
 
-        self.name = "basket"
-        self.optionalString = None
 
-        self.fruit = "banana"
-        self.iD = "123"
-        self.intString = "12345"
-        self.items = ["paper", "rock"]
-        self.register = "1"
-        self.amount = "10"
-
-
-class FruitBasketNotCallable(SchemaJSON, BaseJSON):
+class FruitBasketNotCallable(SchemaJSON):
     def __init__(self):
         super().__init__()
         self.name = SerField(kind="not a valid kind")
 
 
-class FruitBasketOverlappingKeys(SchemaJSON, BaseJSON):
+class FruitBasketOverlappingKeys(SchemaJSON):
     def __init__(self):
         super().__init__()
         self.name = SerField()
         self.thingy = SerField(parent_keys=["name"])
 
 
-class VideoListResponse(SchemaJSON, BaseJSON):
+class VideoListResponseSchema(SchemaJSON):
     def __init__(self):
         super().__init__()
-        self.videos = SerObjectField(name="items", repeated=True)
+        self.videos = SerObjectField(name="items", repeated=True,
+                                     schema=YouTubeVideoSchema)
 
         self.videos = []
 
 
-class YouTubeVideo(SchemaJSON, BaseJSON):
+class YouTubeVideoSchema(SchemaJSON):
     def __init__(self):
         super().__init__()
         self.id = SerField()
-        self.snippet = SerObjectField()
+        self.snippet = SerObjectField(schema=SnippetSchema)
 
 
-class Snippet(SchemaJSON, BaseJSON):
+class SnippetSchema(SchemaJSON):
     def __init__(self):
-        super().__init__()
         self.title = SerField()
 
 
 def test_serialize():
     basket = FruitBasket()
     assert basket.name == "basket"
-    assert basket.to_json() == basket_json
+    assert FruitBasketSchema().to_json(basket) == basket_json
 
 
 def test_serialize_file():
@@ -93,7 +98,7 @@ def test_serialize_file():
     basket = FruitBasket()
     assert basket.name == "basket"
 
-    basket.to_json(filename=temp_file)
+    FruitBasketSchema().to_json(basket, filename=temp_file)
 
     with open(temp_file, "r") as f:
         raw_json = f.read()
@@ -103,20 +108,21 @@ def test_serialize_file():
 
 def test_complex_serialize():
     real_dict = {"id": 1, "snippet": {"title": "hello world"}}
-    videoResponse = VideoListResponse()
+    videoResponse = General()
+    videoResponse.videos = []
 
-    video = YouTubeVideo()
+    video = General()
 
     video.id = 1
 
-    video.snippet = Snippet()
+    video.snippet = General()
     video.snippet.title = "hello world"
 
     videoResponse.videos.append(video)
     videoResponse.videos.append(video)
 
-    assert real_dict == video.to_dict()
-    assert real_dict == videoResponse.to_dict()["items"][0]
+    assert real_dict == YouTubeVideoSchema().to_dict(video)
+    assert real_dict == VideoListResponseSchema().to_dict(videoResponse)["items"][0]
 
 
 def test_serialize_negative():
@@ -124,18 +130,18 @@ def test_serialize_negative():
         basket = FruitBasketNotCallable()
 
     with pytest.raises(Exception, match='var "title" is None'):
-        video = YouTubeVideo()
+        video = General()
         video.id = 1
-        video.snippet = Snippet()
-        video.to_dict()
+        video.snippet = General()
+        YouTubeVideoSchema().to_dict(video)
 
     with pytest.raises(Exception, match='parent key "name" is populated'):
-        basket = FruitBasketOverlappingKeys()
+        basket = General()
         basket.name = "name"
         basket.thingy = "thing"
-        basket.to_dict()
+        FruitBasketOverlappingKeys().to_dict(basket)
 
 
 def test_serialize_str():
     str(SerField())
-    str(SerObjectField())
+    str(SerObjectField(schema=General))

@@ -41,20 +41,10 @@ class SchemaJSON:
         else:
             object.__setattr__(self, name, value)
 
-
-class BaseJSON:
-    """Base class for JSON objects
-    """
-
-    def set_schema_json(self, schema):
-        """Sets the schema for this object
-        """
-        self._field_dict = schema._field_dict
-
-    def to_json(self, filename=None):
+    def to_json(self, target, filename=None):
         """Serializes the object into a JSON file.
         """
-        json_dict = self.to_dict()
+        json_dict = self.to_dict(target)
 
         if filename is None:
             return json.dumps(json_dict)
@@ -62,16 +52,17 @@ class BaseJSON:
         with open(filename, "w") as f:
             f.write(json.dumps(json_dict))
 
-    def to_dict(self):
-        """Converts this object into a python dict"""
+    def to_dict(self, target):
+        """Converts the target into a python dict"""
         data_dict = {}
         for var_name, field in self._field_dict.items():
             serialize = field.serialize
 
-            if self.__dict__.get(var_name, serialize.default) is None:
+            if target.__dict__.get(var_name, serialize.default) is None:
                 if serialize.optional:
                     continue
                 else:
+                    print(target.__dict__)
                     raise Exception('var "{}" is None'.format(var_name))
 
             sub_data_dict = data_dict
@@ -92,25 +83,28 @@ class BaseJSON:
                 kind = serialize.kind
                 if serialize.repeated:
                     sub_data_dict[serialize.name] = []
-                    for value in self.__dict__.get(var_name):
+                    for value in target.__dict__.get(var_name):
                         sub_data_dict[serialize.name].append(kind(value))
                 else:
                     json_value = kind(
-                        self.__dict__.get(var_name, serialize.default)
+                        target.__dict__.get(var_name, serialize.default)
                     )
                     sub_data_dict[serialize.name] = json_value
             elif type(serialize) is SerObjectField:
                 if serialize.repeated:
                     sub_data_dict[serialize.name] = []
-                    for obj in self.__dict__[var_name]:
-                        sub_data_dict[serialize.name].append(obj.to_dict())
+                    schema = serialize.schema()
+                    for obj in target.__dict__[var_name]:
+                        sub_data_dict[serialize.name].append(
+                            schema.to_dict(obj))
                 else:
-                    obj = self.__dict__[var_name]
-                    sub_data_dict[serialize.name] = obj.to_dict()
+                    obj = target.__dict__[var_name]
+                    schema = serialize.schema()
+                    sub_data_dict[serialize.name] = schema.to_dict(obj)
 
         return data_dict
 
-    def from_json(self, filename=None, raw_json=None):
+    def from_json(self, target, filename=None, raw_json=None):
         """Loads in values to this object from a JSON file or string"""
         if filename is not None:
             with open(filename, "r") as f:
@@ -119,9 +113,9 @@ class BaseJSON:
             raise Exception("Specify filename or raw JSON")
 
         data_dict = json.loads(raw_json)
-        self.from_dict(data_dict)
+        self.from_dict(target, data_dict)
 
-    def from_dict(self, data_dict):
+    def from_dict(self, target, data_dict):
         """Loads in values to this object from a python dict"""
         for var_name, field in self._field_dict.items():
             deserialize = field.deserialize
@@ -148,25 +142,26 @@ class BaseJSON:
 
             if type(deserialize) is DeserField:
                 if deserialize.repeated:
-                    self.__dict__[var_name] = []
+                    target.__dict__[var_name] = []
                     for value in sub_data_dict[deserialize.name]:
-                        self.__dict__[var_name].append(deserialize.kind(value))
+                        target.__dict__[var_name].append(deserialize.kind(value))
                 else:
-                    self.__dict__[var_name] = deserialize.kind(
+                    target.__dict__[var_name] = deserialize.kind(
                         sub_data_dict[deserialize.name]
                     )
             elif type(deserialize) is DeserObjectField:
                 if deserialize.repeated:
-                    self.__dict__[var_name] = []
+                    target.__dict__[var_name] = []
                     for value in sub_data_dict[deserialize.name]:
+                        schema = deserialize.schema()
                         obj = deserialize.kind()
-                        obj.from_dict(value)
-                        self.__dict__[var_name].append(obj)
+                        schema.from_dict(obj, value)
+                        target.__dict__[var_name].append(obj)
                 else:
-                    self.__dict__[var_name] = deserialize.kind()
-                    self.__dict__[var_name].from_dict(
-                        sub_data_dict[deserialize.name]
-                    )
+                    obj = deserialize.kind()
+                    schema = deserialize.schema()
+                    schema.from_dict(obj, sub_data_dict[deserialize.name])
+                    target.__dict__[var_name] = obj
 
 
 class CompositeField:
@@ -294,19 +289,24 @@ class SerObjectField(ObjectField):
         repeated=False,
         parent_keys=[],
         default=None,
+        schema=None
     ):
-        self.name = name
-        self.name_conv = name_conv
-        self.optional = optional
-        self.repeated = repeated
-        self.parent_keys = parent_keys
-        self.default = default
+        if schema is None:
+            raise Exception("Schema cannot be None")
 
         if not optional and default is not None:
             raise Exception("Default value populated while optional")
 
         if not type(parent_keys) is list:
             raise Exception("parent keys has to be of type list")
+
+        self.name = name
+        self.name_conv = name_conv
+        self.optional = optional
+        self.repeated = repeated
+        self.parent_keys = parent_keys
+        self.default = default
+        self.schema = schema
 
 
 class DeserObjectField(ObjectField):
@@ -331,8 +331,12 @@ class DeserObjectField(ObjectField):
         optional=False,
         repeated=False,
         kind=None,
+        schema=None,
         parent_keys=[],
     ):
+
+        if schema is None:
+            raise Exception("Schema cannot be None")
 
         self.name = name
         self.name_conv = name_conv
@@ -340,3 +344,4 @@ class DeserObjectField(ObjectField):
         self.repeated = repeated
         self.kind = kind
         self.parent_keys = parent_keys
+        self.schema = schema

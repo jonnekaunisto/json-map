@@ -1,5 +1,4 @@
 from .json import (
-    BaseJSON,
     SchemaJSON,
     SerField,
     DeserField,

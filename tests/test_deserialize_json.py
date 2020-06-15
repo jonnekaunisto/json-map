@@ -5,7 +5,7 @@ import json
 import re
 
 
-from pyser import BaseJSON, SchemaJSON, SerField, DeserField, DeserObjectField
+from pyser import SchemaJSON, SerField, DeserField, DeserObjectField
 
 currPath = os.path.dirname(os.path.abspath(__file__))
 test_data_path = currPath + os.sep + "test_data" + os.sep
@@ -32,7 +32,11 @@ def underscore_to_camel(word):
     return word
 
 
-class FruitBasketSchema(SchemaJSON, BaseJSON):
+class General:
+    pass
+
+
+class FruitBasketSchema(SchemaJSON):
     def __init__(self):
         self.name = DeserField()
         self.fruit = DeserField()
@@ -53,19 +57,19 @@ class FruitBasketSchema(SchemaJSON, BaseJSON):
 fruit_basket_schema = FruitBasketSchema()
 
 
-class FruitBasket(BaseJSON):
+class FruitBasket():
     def __init__(self):
-        self.set_schema_json(fruit_basket_schema)
+        pass
 
 
-class VideoListResponse(SchemaJSON, BaseJSON):
+class VideoListResponseSchema(SchemaJSON):
     def __init__(self):
         self.videos = DeserObjectField(
-            name="items", repeated=True, kind=YouTubeVideo
+            name="items", repeated=True, kind=General, schema=YouTubeVideoSchema
         )
 
 
-class YouTubeVideo(SchemaJSON, BaseJSON):
+class YouTubeVideoSchema(SchemaJSON):
     def __init__(self):
         self.id = DeserField()
         self.title = DeserField(parent_keys=["snippet"])
@@ -73,23 +77,23 @@ class YouTubeVideo(SchemaJSON, BaseJSON):
             name="url", parent_keys=["snippet", "thumbnails", "maxres"]
         )
 
-        self.snippet = DeserObjectField(kind=Snippet)
+        self.snippet = DeserObjectField(kind=General, schema=SnippetSchema)
 
 
-class Snippet(SchemaJSON, BaseJSON):
+class SnippetSchema(SchemaJSON):
     def __init__(self):
 
         self.title = DeserField()
 
 
-class FruitBasketNotCallable(SchemaJSON, BaseJSON):
+class FruitBasketNotCallableSchema(SchemaJSON):
     def __init__(self):
         self.name = DeserField(kind="not a valid kind")
 
 
 def test_deserialize_raw_json():
-    basket = FruitBasket()
-    basket.from_json(raw_json=raw_json)
+    basket = General()
+    fruit_basket_schema.from_json(basket, raw_json=raw_json)
     assert basket.name == "basket"
     assert basket.fruit == "banana"
     assert basket.iD == 123
@@ -97,8 +101,8 @@ def test_deserialize_raw_json():
 
 
 def test_deserialize_file():
-    basket = FruitBasket()
-    basket.from_json(filename=fruit_basket_test_file)
+    basket = General()
+    fruit_basket_schema.from_json(basket, filename=fruit_basket_test_file)
     assert basket.name == "basket"
     assert basket.fruit == "banana"
     assert basket.iD == 123
@@ -110,10 +114,12 @@ def test_complex_deserialize():
         raw_json = f.read()
     data_dict = json.loads(raw_json)
 
-    videoResponse = VideoListResponse()
-    videoResponse.from_json(filename=video_test_file)
+    video_response = General()
 
-    for i, video in enumerate(videoResponse.videos):
+    videoResponse_schema = VideoListResponseSchema()
+    videoResponse_schema.from_json(video_response, filename=video_test_file)
+
+    for i, video in enumerate(video_response.videos):
         d_vid = data_dict["items"][i]
         assert video.id == d_vid["id"]
         assert video.title == d_vid["snippet"]["title"]
@@ -123,15 +129,15 @@ def test_complex_deserialize():
 
 def test_deserialize_negative():
     with pytest.raises(Exception, match="Kind needs to be callable"):
-        basket = FruitBasketNotCallable()
+        basket = FruitBasketNotCallableSchema()
 
     with pytest.raises(Exception, match="Specify filename or raw JSON"):
         basket = FruitBasket()
-        basket.from_json()
+        fruit_basket_schema.from_json(basket)
 
     with pytest.raises(Exception, match="fruit field not found in the json"):
         basket = FruitBasket()
-        basket.from_json(filename=fruit_basket_missing_field_file)
+        fruit_basket_schema.from_json(basket, filename=fruit_basket_missing_field_file)
 
 
 def test_deserialize_str():

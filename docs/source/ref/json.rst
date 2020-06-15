@@ -2,18 +2,18 @@
 JSON
 *****
 
-:class:`JSONBase`
+:class:`SchemaJSON`
 ==========================
 
-.. autoclass:: pyser.JSONBase
+.. autoclass:: pyser.SchemaJSON
    :members:
    :inherited-members:
    :show-inheritance:
 
-:class:`DeserializeField`
+:class:`DeserField`
 ==========================
 
-.. autoclass:: pyser.DeserializeField
+.. autoclass:: pyser.DeserField
    :members:
    :inherited-members:
    :show-inheritance:
@@ -23,25 +23,25 @@ JSON
 :class:`SerializeField`
 ==========================
 
-.. autoclass:: pyser.SerializeField
+.. autoclass:: pyser.SerField
    :members:
    :inherited-members:
    :show-inheritance:
 
 
-:class:`DeserializeObjectField`
+:class:`DeserObjectField`
 ===============================
 
-.. autoclass:: pyser.DeserializeObjectField
+.. autoclass:: pyser.DeserObjectField
    :members:
    :inherited-members:
    :show-inheritance:
 
 
-:class:`SerializeObjectField`
+:class:`SerObjectField`
 =============================
 
-.. autoclass:: pyser.SerializeObjectField
+.. autoclass:: pyser.SerObjectField
    :members:
    :inherited-members:
    :show-inheritance:

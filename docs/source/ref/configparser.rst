@@ -19,37 +19,37 @@ ConfigParser
    :inherited-members:
    :show-inheritance:
 
-:class:`DeserializeConfigOption`
+:class:`DeserConfigOption`
 ================================
 
-.. autoclass:: pyser.DeserializeConfigOption
+.. autoclass:: pyser.DeserConfigOption
    :members:
    :inherited-members:
    :show-inheritance:
 
 
-:class:`SerializeConfigOption`
+:class:`SerConfigOption`
 ==============================
 
-.. autoclass:: pyser.SerializeConfigOption
+.. autoclass:: pyser.SerConfigOption
    :members:
    :inherited-members:
    :show-inheritance:
 
 
-:class:`DeserializeConfigSection`
+:class:`DeserConfigSection`
 =================================
 
-.. autoclass:: pyser.DeserializeConfigSection
+.. autoclass:: pyser.DeserConfigSection
    :members:
    :inherited-members:
    :show-inheritance:
 
 
-:class:`SerializeConfigSection`
+:class:`SerConfigSection`
 ===============================
 
-.. autoclass:: pyser.DeserializeConfigSection
+.. autoclass:: pyser.DeserConfigSection
    :members:
    :inherited-members:
    :show-inheritance:

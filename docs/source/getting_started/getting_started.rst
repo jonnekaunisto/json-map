@@ -1,7 +1,7 @@
 .. _getting_started:
 
 
-Getting started with Simple YouTube API
+Getting started with Pyser
 ---------------------------------------
 
 

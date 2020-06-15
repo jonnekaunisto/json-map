@@ -21,8 +21,8 @@ Class mappings for serializing and deserializing in JSON
 
 .. code:: python
 
-    from pyser import BaseJSON, SchemaJSON, SerField, DeserField
-    class FruitBasket(BaseJSON, SchemaJSON):
+    from pyser import SchemaJSON, SerField, DeserField
+    class FruitBasketSchema(SchemaJSON):
         def __init__(self):
             self.name           = DeserField()
             self.fruit          = DeserField()
@@ -44,10 +44,8 @@ Class mappings for serializing and deserializing in JSON
     fruit_basket_schema = FruitBasketSchema()
 
 
-    class FruitBasket(BaseJSON):
+    class FruitBasket():
         def __init__(self):
-            self.set_schema_json(fruit_basket_schema)
-
             self.name           = 'basket'
             self.fruit          = 'banana'
             self.iD             = '123'
@@ -63,7 +61,7 @@ Serializing to a JSON file
 .. code:: python
 
     basket = FruitBasket()
-    basket.to_json(filename="basket.json")
+    fruit_basket_schema.to_json(basket, filename="basket.json")
 
 File contents of basket.json after serializing:
 
@@ -89,7 +87,7 @@ Similarly deserialization from a json file:
 .. code:: Python
 
     basket = FruitBasket()
-    basket.from_json(raw_json=raw_json)
+    fruit_basket_schema.from_json(basket, raw_json=raw_json)
 
 Installation
 ------------

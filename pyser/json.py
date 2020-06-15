@@ -113,7 +113,7 @@ class SchemaJSON:
             raise Exception("Specify filename or raw JSON")
 
         data_dict = json.loads(raw_json)
-        self.from_dict(target, data_dict)
+        return self.from_dict(target, data_dict)
 
     def from_dict(self, target, data_dict):
         """Loads in values to this object from a python dict"""
@@ -162,6 +162,7 @@ class SchemaJSON:
                     schema = deserialize.schema()
                     schema.from_dict(obj, sub_data_dict[deserialize.name])
                     target.__dict__[var_name] = obj
+        return target
 
 
 class CompositeField:

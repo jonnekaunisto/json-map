@@ -18,6 +18,7 @@ with open(basket_complex_json, "r") as f:
 class General():
     pass
 
+
 class FruitBasket:
     def __init__(self):
         self.name = "basket"

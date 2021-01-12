@@ -60,7 +60,7 @@ requires = []
 test_reqs = [
     "pytest-cov>=2.5.1",
     "pytest>=3.0.0",
-    "coveralls>=1.1,<2.0",
+    "coveralls>=1.1,<4.0",
     "rstcheck>=3.3.1",
 ]
 
